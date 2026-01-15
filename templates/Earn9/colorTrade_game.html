@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Colour Trading Game - Earn9</title> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> 
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  {% load static %}
+  <script src="https://cdn.tailwindcss.com"></script>  
+  <link rel="stylesheet" href="{% static 'colorTrade/css/colorTrade.css' %}">    
+  {% include 'layout/HomePage/Header_Home.html' %}
+  
+  <style>
+    .bodyDiv {
+      background: url('../../../static/colorTrade/img/result_display.png') no-repeat center center fixed;
+      background-size: 100% 100%;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .result-container { 
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      padding-top: 180px;
+    }
+ 
+    .result-heading {
+      color: #fff;
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 12px;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    }
+
+    .lottery-tags {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .lottery-tags span {
+      background-color: #fff;
+      padding: 1px 18px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 15px;
+      color: #28a745;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .lottery-tags span:nth-child(2) {
+      color: #000;
+    }
+
+    .result-slip {
+      background-color: transparent;
+      border-radius: 0 0 40px 40px;
+      margin: 10px auto 30px;
+      text-align: center;
+      padding: 20px;
+      width: 90%;
+      box-shadow: 0 -3px 8px rgba(0,0,0,0.1);
+      color: #e85b10;
+      font-weight: 700;
+      font-size: 22px;
+    }
+
+    .result-slip small {
+      display: block;
+      margin-top: 10px;
+      font-size: 12px;
+      color: #888;
+      font-weight: 500;
+    }
+
+    @media (max-width: 480px) {
+      .result-container {
+        padding-top: 160px;
+      }
+
+      .result-slip {
+        font-size: 18px;
+        padding: 16px;
+      }
+
+      .lottery-tags span {
+        font-size: 14px;
+        padding: 5px 12px;
+      }
+    }
+  </style>
+   <style>
+    
+    @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            10% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1.1);
+            }
+        }
+
+    .animate-fade-in-out {
+        animation: fadeInOut 2s ease-in-out forwards;
+        z-index: 50;
+    }
+
+   </style>
+ 
+  </head>
+  <body>
+      <div class="game-container">
+        <div class="top-header"> 
+            <div class="how-to-play">
+                <h1>
+                    <span class="gradient-green">COLO<span class="gradient-violet">R TRA<span class="gradient-red">DING</span></span></span>
+                </h1>
+            </div> 
+            <div class="timer-section">
+                <div class="timer-label">Time remaining</div>
+            
+                <div class="timer-container">
+                    <div id="timer" class="timer">0 0 : 5 0</div>
+                </div>
+                <div id="game_id" class="game-id">20240721011098</div>
+            </div> 
+        </div> 
+          
+          <div class="color-buttons">
+              <button id="color-green" class="color-btn green-btn">
+                  <i class="fas fa-seedling"></i>
+                  Green
+              </button>
+              <button id="color-violet" class="color-btn violet-btn">
+                  <i class="fas fa-gem"></i>
+                  Violet
+              </button>
+              <button id="color-red"  class="color-btn red-btn">
+                  <i class="fas fa-fire"></i>
+                  Red
+              </button>
+          </div> 
+          <div class="number-grid"> 
+              <div  class="number-row"> 
+                  <div  id="exact_number_0" class="number-item red-violet number-chip">
+                      <span>0</span>
+                  </div>
+                  <div  id="exact_number_1"  class="number-item green number-chip">
+                      <span>1</span>
+                  </div>
+                  <div id="exact_number_2"  class="number-item red number-chip">
+                      <span>2</span>
+                  </div>
+                  <div  id="exact_number_3"  class="number-item green number-chip">
+                      <span>3</span>
+                  </div>
+                  <div id="exact_number_4"  class="number-item red number-chip">
+                      <span>4</span>
+                  </div>
+              </div>
+              <div class="number-row"> 
+                  <div id="exact_number_5" class="number-item green-violet number-chip">
+                      <span>5</span>
+                  </div>
+                  <div id="exact_number_6" class="number-item red number-chip">
+                      <span>6</span>
+                  </div>
+                  <div id="exact_number_7" class="number-item green number-chip">
+                      <span>7</span>
+                  </div>
+                  <div id="exact_number_8" class="number-item red number-chip">
+                      <span>8</span>
+                  </div>
+                  <div id="exact_number_9" class="number-item green number-chip">
+                      <span>9</span>
+                  </div>
+              </div>
+          </div>
+          
+          <div class="controls"> 
+                <div class="control-grid"> 
+                    <div class="control-row"> 
+                        <div class="random-bets">
+                            <button id="multiplayer_1" class="bet-btn">X1</button>
+                            <button id="multiplayer_5" class="bet-btn">X5</button>
+                            <button id="multiplayer_10" class="bet-btn">X10</button>
+                            <button id="multiplayer_20" class="bet-btn">X20</button>
+                            <button id="multiplayer_50" class="bet-btn">X50</button>
+                            <button id="multiplayer_100" class="bet-btn">X100</button>
+                        </div>
+                    </div>
+                    <div class="control-row"> 
+                        <div class="size-buttons">
+                            <button id="size_small" class="size-btn">Small</button>
+                            <button id="size_big" class="size-btn">Big</button>
+                        </div>
+                    </div>
+                </div> 
+          </div>
+          <!-- History Table -->
+          <div class="period-section"> 
+              <table class="history-table">
+                  <thead class="table-header">
+                      <tr>
+                          <th>Game ID</th>
+                          <th>Number</th>
+                          <th>Big Small</th>
+                          <th>Color</th>
+                      </tr>
+                  </thead>
+                  <tbody class="table-body"> 
+                  </tbody>
+              </table>
+          </div>
+      </div>  
+
+      <div id="bet-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
+        <div class="bg-gray-900 p-1 sm:p-6 rounded-2xl shadow-2xl w-full max-w-md neon-box relative animate-fade-in">
+            <button id="close-modal" class="absolute top-2 right-2 text-red text-lg hover:text-gray-500 transition">
+              ✖
+            </button>
+            <div class="modal-header">
+              <div class="text-center mb-1">
+                    <h2 class="text-xl sm:text-2xl font-bold text-green-400"> Place Your Bet</h2>
+                    <div class="user-selection">You Selected: <span id="user_selected"></span></div>
+              </div>
+            </div>
+       
+            <div class="random-bets">
+                <div class="flex flex-wrap justify-center gap-1 mb-4">
+                    <button id="multiplayer_1" class="bet-btn">X1</button>
+                    <button id="multiplayer_5" class="bet-btn">X5</button>
+                    <button id="multiplayer_10" class="bet-btn">X10</button>
+                    <button id="multiplayer_20" class="bet-btn">X20</button>
+                    <button id="multiplayer_50" class="bet-btn">X50</button>
+                    <button id="multiplayer_100" class="bet-btn">X100</button>
+                </div>
+            </div>
+            
+          <div class="mb-4">
+            <button onclick="confirmBet()" id="confirm-bet-btn"
+              class="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-2 p-2 rounded-xl text-sm sm:text-base font-bold transition">
+              🚀 CURRENT BET: <span id="current-bid" class="text-white">0</span>
+            </button>
+          </div>
+       
+          <div class="flex items-center justify-between mb-2 gap-2">
+            <button onclick="changeAmountPage(-1)" class="nav-arrow bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg">
+              &laquo;
+            </button>
+      
+            <div class="relative w-full max-w-xs overflow-hidden">
+              <div class="amount-groups-wrapper flex transition-transform duration-300 ease-in-out" style="transform: translateX(0);">
+                
+                <div class="amount-group shrink-0 w-full flex justify-center gap-2" data-group="0">
+                  <button data-amount="20" class="coin-btn">+20</button>
+                  <button data-amount="100" class="coin-btn">+100</button>
+                  <button data-amount="500" class="coin-btn">+500</button>
+                </div>
+                
+                <div class="amount-group shrink-0 w-full flex justify-center gap-2" data-group="1">
+                  <button data-amount="1000" class="coin-btn">1K</button>
+                  <button data-amount="5000" class="coin-btn">5K</button>
+                  <button data-amount="10000" class="coin-btn">10K</button>
+                </div>
+                
+                <div class="amount-group shrink-0 w-full flex justify-center gap-2" data-group="2">
+                  <button data-amount="20000" class="coin-btn">+20K</button>
+                  <button data-amount="50000" class="coin-btn">+50K</button>
+                  <button data-amount="100000" class="coin-btn">+100K</button>
+                </div>
+      
+              </div>
+            </div>
+
+            <button onclick="changeAmountPage(1)" class="nav-arrow bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg">
+              &raquo;
+            </button>
+          </div>
+      
+        </div>
+      </div>
+
+    <div id="result-announcement" class="fixed inset-0 pointer-events-none z-50"></div>
+      
+
+<script>  
+    let socket;
+    let balance = 0; 
+    let isConnecting = false;
+    let reconnectAttempts = 0;   
+    let currentBet = 0;
+    let currentBid = 0;
+    let selectedMultiplier = 1; 
+    let selectedOption = ''; 
+    const betModal = document.getElementById('bet-modal');
+    const userSelectedEl = document.getElementById('user_selected');
+    const currentBidEl = document.getElementById('current-bid'); 
+    const closeModalBtn = document.getElementById('close-modal'); 
+
+    const betButtons = document.querySelectorAll('.bet-btn');
+    const sizeButtons = document.querySelectorAll('.size-btn');
+    const colorButtons = document.querySelectorAll('.color-btn');
+    const numberItems = document.querySelectorAll('.number-item'); 
+    
+
+    let gameState = { phase: 'waiting',  timer: 50, totals: {COLOR: 0, EXACT: 0, SIZE: 0}, roundId: null };
+
+         
+    async function fetchBalance() {
+        try {
+            const response = await fetch('/Earn/api/my_profile/', {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem("access_token")}`
+                }
+            });
+            const data = await response.json();
+            balance = data?.data?.coins; 
+            updateBalanceDisplay();
+        } catch (error) {
+            console.error('Balance fetch failed:', error);
+        }
+    }
+
+    fetchBalance();
+ 
+    document.addEventListener('DOMContentLoaded', () => {
+        connectWebSocket();
+         
+        const balanceElement = balance;
+        if (balanceElement) {
+            balance = parseInt(balanceElement.textContent) || 0;
+            updateBalanceDisplay();
+        }
+        
+        document.querySelectorAll('.coin-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const amount = parseInt(btn.dataset.amount);
+                if (currentBid + (amount * selectedMultiplier) > balance) { 
+                    NotificationHandlerGet.showError(`Insufficient balance!`);
+                    return;
+                }
+                currentBid += amount;  
+                updateCurrentBidDisplay();
+            });
+        });
+    });
+     
+    function connectWebSocket() {
+        if (isConnecting) return;
+        
+        isConnecting = true;
+        socket = new WebSocket(
+            (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + 
+            window.location.host + '/ws/colorTrade_game/live_colorTrade_game/'
+        );
+
+        socket.onopen = () => {
+            isConnecting = false;
+            reconnectAttempts = 0;
+            console.log('✅ WebSocket connected'); 
+            currentPlayerId = "{{ obj_player.user.auth_token }}"; 
+            setTimeout(() => sendSocket({ action: 'get_initial_state' }), 500);
+        };
+
+        socket.onclose = (e) => {
+            isConnecting = false;
+            console.error('WebSocket disconnected. Retrying...');
+            reconnectAttempts++;
+            const delay = Math.min(3000 * reconnectAttempts, 3000);
+            setTimeout(connectWebSocket, delay);
+        };
+
+        socket.onerror = (e) => {
+            console.error("WebSocket error:", e);
+            socket.close();
+        };
+
+        socket.onmessage = (e) => {
+            try {
+                const data = JSON.parse(e.data);
+                handleSocketMessage(data);
+            } catch (error) {
+                console.error("Message parsing error:", error);
+            }
+        };
+    }
+    
+    function sendSocket(data) {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            try {
+                socket.send(JSON.stringify(data));
+            } catch (error) { 
+                NotificationHandlerGet.showError(`Error sending WebSocket message:${error}`);
+            }
+        } else { 
+            NotificationHandlerGet.showError(`WebSocket not connected. Message not sent :${data}`);
+        }
+    }
+     
+    function handleError(data) {
+        const errorMap = {
+            "Failed to initialize game": "Game is restarting...",
+            "Invalid round": "New round starting...",
+            "Insufficient balance": "Add coins to play"
+        };
+        
+        const message = errorMap[data.message]; 
+        if (message === undefined){
+            return 
+        }else{
+            NotificationHandlerGet.showError(` ${data.message.includes("Failed") ? 'warning' : 'error'}:${message}`);
+        }
+         
+    }
+  
+    function handleSocketMessage(data) {
+        const handlers = { 
+            'initial_state': handleInitialState,
+            'timer_update': handleTimerUpdate,
+            'round_start': handleRoundStart,
+            'bid_update': handleBidUpdate,
+            'results': handleResults,
+            'error': handleError, 
+        };
+  
+        if (data.type === 'bet_success') {
+            updateBalanceDisplay();
+             
+            waitForElements([
+                '.color-btn', 
+                '.size-btn', 
+                '.number-item',
+                '[data-multiplier]'
+            ], () => {
+                if (data.bid_details) {
+                    applyBidStyling(data.bid_details);
+                }
+            });
+            return;
+        }
+
+        if (data.type in handlers) {
+            handlers[data.type](data);
+        }
+    }
+
+    function handleInitialState(data) {
+        gameState = {
+            phase: data.phase,
+            timer: data.timer,
+            totals: data.totals,
+            roundId: data.round_id
+        };
+        
+        updateTimerDisplay();
+        updateHistoryTable(data.history);
+        document.getElementById('game_id').textContent = data.round_id;
+        if (data.type === 'bet_success') {
+        updateBalanceDisplay();
+        
+        waitForBidElements(() => {
+            if (data.bid_details) {
+                applyBidStyling(data.bid_details);
+            }
+        });
+        return;
+        }
+        if (data.user_bid) {
+            waitForBidElements(() => {
+                applyBidStyling(data.user_bid);
+            });
+        }
+    }
+  
+    function handleTimerUpdate(data) {
+        gameState.timer = data.timer;
+        gameState.phase = data.phase;
+        updateTimerDisplay();
+    }
+ 
+    function handleRoundStart(data) {
+        gameState.roundId = data.round_id;
+        gameState.phase = 'bidding';
+        gameState.timer = 50;
+        gameState.totals = {COLOR: 0, EXACT: 0, SIZE: 0};
+        
+        document.getElementById('game_id').textContent = data.round_id;
+        resetBet(); 
+        updateTimerDisplay();
+    }
+
+    function handleBidUpdate(data) {
+        gameState.totals = data.totals; 
+    }
+
+    function handleResults(data) {    
+        const announcementContainer = document.getElementById("result-announcement");
+        announcementContainer.innerHTML = "";  
+        setTimeout(() => {
+            announcementContainer.innerHTML = "";
+            
+            const currentUsernamePlayer = localStorage.getItem("auth_token");
+            
+            data.player_results.forEach(player => { 
+                const isCurrentUser = player.player === currentUsernamePlayer; 
+                
+                if (isCurrentUser) {
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = `absolute bodyDiv text-center text-white font-bold `;  
+                    
+                    if (player.result_type === "WIN") {  
+                        resultDiv.classList.add("text-4xl", "p-4");
+                        resultDiv.style.top = "40%";
+                        resultDiv.style.left = "50%";
+                        resultDiv.style.transform = "translate(-50%, -50%)"; 
+                        
+                        const netAmount = player.net_amount;
+                        resultDiv.innerHTML = ` 
+                            <div class="result-container"> 
+                                <div class="result-heading">🎉 Congratulations  🎉</div>
+                                <div class="lottery-tags">
+                                <span>${data.winning_color}</span>
+                                <span>${data.random_number}</span>
+                                <span>${data.winning_size}</span>
+                                </div>
+                                <div class="result-slip">
+                                BONUS <br>
+                                Rs.+${netAmount.toLocaleString()} 🪙
+                                <small class="text-white">Period: Win 1 minute ${data.round_id} </small>
+                                </div>
+                            </div>
+                        `;
+                    } 
+                    else if (player.result_type === "LOSE") { 
+                        resultDiv.classList.add("text-4xl", "p-4");
+                        resultDiv.style.top = "40%";
+                        resultDiv.style.left = "50%";
+                        resultDiv.style.transform = "translate(-50%, -50%)"; 
+
+                        const netAmount = player.net_amount;
+                        resultDiv.innerHTML = `
+                        <div class="result-container"> 
+                                <div class="result-heading"> 💥 SO SAD   💥</div>
+                                <div class="lottery-tags">
+                                <span>${data.winning_color}</span>
+                                <span>${data.random_number}</span>
+                                <span>${data.winning_size}</span>
+                                </div>
+                                <div class="result-slip">
+                                LOSE <br>
+                                Rs.-${Math.abs(netAmount).toLocaleString()} 🪙
+                                <small class="text-white">Period: Win 1 minute ${data.round_id} </small>
+                                </div>
+                            </div> 
+                        `;
+                    }
+                    
+                    announcementContainer.appendChild(resultDiv);
+                }
+            });
+             
+            if (!data.player_results.some(player => player.player === currentUsernamePlayer)) {
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = `absolute bodyDiv text-center text-white font-bold `;  
+                    resultDiv.classList.add("text-4xl", "p-4");
+                    resultDiv.style.top = "40%";
+                    resultDiv.style.left = "50%";
+                    resultDiv.style.transform = "translate(-50%, -50%)"; 
+                        
+                    resultDiv.innerHTML = `
+                            <div class="result-container"> 
+                                <div class="result-heading"> Round Result </div>
+                                <div class="lottery-tags">
+                                <span>${data.winning_color}</span>
+                                <span>${data.random_number}</span>
+                                <span>${data.winning_size}</span>
+                                </div>
+                                <div class="result-slip">
+                                GET READY<br>
+                                Rs.
+                                <small class="text-white">Period: Win 1 minute ${data.round_id} </small>
+                                </div>
+                            </div>
+                            
+                        `;
+                        
+                    announcementContainer.appendChild(resultDiv);
+            }
+            
+            updateHistoryTable(data.history); 
+        }, 4000); 
+         
+        setTimeout(() => {   
+            updateHistoryTable(data.history);
+            announcementContainer.innerHTML = "";
+            window.location.href = '/Earn/page/colorTrade_game/';
+            resetBet();
+        }, 10000); 
+    }
+        
+    function updateGameStatus() { 
+        if (gameState.phase === 'bidding') {  
+            enableBetting(true);
+        } else if (gameState.phase === 'results') { 
+            enableBetting(false);
+        } else { 
+            enableBetting(false);
+        }
+    }
+
+    function enableBetting(enabled) {
+        document.querySelectorAll('.color-btn, .size-btn, .number-chip, .bet-btn').forEach(btn => {
+            btn.disabled = !enabled;
+        });
+    } 
+        
+    function updateHistoryTable(history) {
+        const historyTable = document.querySelector('.history-table tbody');
+        historyTable.innerHTML = '';  // Clear existing rows
+        
+        history.forEach(item => {
+            const colorDot = {
+                'Green': 'dot-green',
+                'Red': 'dot-red',
+                'Violet': 'dot-violet'
+            }[item.color];
+            
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.game_id}</td>
+                <td>${item.number}</td>
+                <td>${item.size}</td>
+                <td><span class="dot ${colorDot}"></span></td>
+            `;
+            historyTable.appendChild(row);
+        });
+    }
+
+    function confirmBet() {
+        if (currentBid <= 0) { 
+            NotificationHandlerGet.showError(`Please select a bid amount!`);
+            return;
+        }
+        if((selectedMultiplier * currentBid) > balance){
+            NotificationHandlerGet.showError(`Insufficient balance!`);
+            return; 
+        }
+        
+        if (!gameState.roundId || gameState.phase !== 'bidding') {
+            NotificationHandlerGet.showError('Betting is closed for this round');
+            return;
+        }
+
+        const betType = FindType(selectedOption);
+        if (betType === 'UNKNOWN') {
+            NotificationHandlerGet.showError('Invalid bet selection');
+            return;
+        }
+
+        const betData = {
+            action: 'place_bet',
+            player_token: localStorage.getItem('auth_token'),
+            bet_type: betType,
+            selection: selectedOption,
+            amount: currentBid,
+            multiplier: selectedMultiplier
+        };
+        
+        socket.send(JSON.stringify(betData));
+        
+        resetBet();
+        fetchBalance(); 
+        fetchAuthenticatedPlayerData(); 
+        betModal.classList.remove('visible');
+    }
+
+    function FindType(selectedOption) {
+        const colors = ['GREEN', 'VIOLET', 'RED'];
+        const sizes = ['SMALL', 'BIG'];
+
+        if (!isNaN(selectedOption) && Number(selectedOption) >= 0 && Number(selectedOption) <= 9) {
+            return "EXACT";  
+        } else if (colors.includes(selectedOption.toUpperCase())) {
+            return "COLOR";
+        } else if (sizes.includes(selectedOption.toUpperCase())) {
+            return "SIZE";
+        } else {
+            return "UNKNOWN";
+        }
+    } 
+
+    function updateCurrentBidDisplay() { 
+        if (currentBid > balance) {
+            currentBid = balance;
+        }
+        document.getElementById('current-bid').textContent = currentBid.toLocaleString();
+         
+        document.querySelectorAll('.coin-btn').forEach(btn => {
+            const amount = parseInt(btn.dataset.amount);
+            btn.disabled = (currentBid + amount) > balance;
+        });
+    }
+    
+    function updateBalanceDisplay() {
+        const balanceElement = balance;
+        if (balanceElement) {
+            
+            balanceElement.textContent = balance;
+        }
+        
+        document.querySelectorAll('.coin-btn').forEach(btn => {
+            btn.disabled = balance <= 0;
+        });
+    }
+    
+    function handleGameState(data) { 
+        currentTimer = data.timer;
+        gameStatus = data.status;
+        currentBidTotals = data.bid_totals;
+        currentRoundId = data.game_id;
+        
+        updateTimerDisplay(); 
+    }
+    
+    function updateTimerDisplay() {
+        const timerElement = document.getElementById('timer');
+        
+        if (gameState.phase === 'results' && gameState.timer > 5) {
+            timerElement.textContent = `00:${(gameState.timer - 5).toString().padStart(2, '0')}`;
+        } else if (gameState.phase === 'results' && gameState.timer <= 5) {
+            timerElement.textContent = "RESULTS";
+        } else {
+            const mins = Math.floor(gameState.timer / 60);
+            const secs = gameState.timer % 60;
+            timerElement.textContent = 
+                `${Math.floor(mins / 10)}${mins % 10}:${Math.floor(secs / 10)}${secs % 10}`;
+        }
+    }
+     
+    function setupGameOptions() { 
+        document.getElementById('color-green').addEventListener('click', () => showBetModal('Green'));
+        document.getElementById('color-violet').addEventListener('click', () => showBetModal('Violet'));
+        document.getElementById('color-red').addEventListener('click', () => showBetModal('Red'));
+         
+        document.getElementById('size_small').addEventListener('click', () => showBetModal('Small'));
+        document.getElementById('size_big').addEventListener('click', () => showBetModal('Big'));
+         
+        for (let i = 0; i <= 9; i++) {
+            const numBtn = document.getElementById(`exact_number_${i}`);
+            if (numBtn) {
+                numBtn.addEventListener('click', () => showBetModal(i.toString()));
+            }
+        }
+         
+        document.querySelectorAll('.bet-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const multiplier = parseInt(this.id.split('_')[1]);
+                setMultiplier(multiplier);
+            });
+        });
+    }
+         
+    function setupBetModal() { 
+        closeModalBtn.addEventListener('click', closeBetModal);
+        document.querySelectorAll('.multiplayer-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const multiplier = parseInt(this.getAttribute('data-multiplier'));
+                setMultiplier(multiplier);
+            });
+        });
+         
+        document.querySelectorAll('.coin-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const amount = parseInt(this.getAttribute('data-amount'));
+                addToBet(amount);
+            });
+        }); 
+    }
+        
+    function showBetModal(option) {
+        selectedOption = option;
+        userSelectedEl.textContent = option;
+        betModal.classList.add('visible');
+         
+        currentBid = 0;
+        updateCurrentBid();
+    }
+     
+    function setMultiplier(multiplier) {
+        selectedMultiplier = multiplier;
+         
+        document.querySelectorAll('.multiplayer-btn, .bet-btn').forEach(btn => {
+            const btnMultiplier = btn.id.startsWith('multiplayer_') ? 
+                parseInt(btn.id.split('_')[1]) : 
+                parseInt(btn.getAttribute('data-multiplier'));
+            
+            if (btnMultiplier === multiplier) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+        
+        updateCurrentBid();
+    }
+     
+    function addToBet(amount) {
+        currentBid == amount;
+        updateCurrentBid();
+    }     
+        
+    function updateCurrentBid() {
+        const total = currentBid;
+        currentBidEl.textContent = total.toLocaleString();
+    }
+      
+    function validateBid() {
+        if (!currentRoundId) {
+            NotificationHandlerGet.showError('No active round!');
+            return false;
+        }
+        if (currentBid < 1) {
+            NotificationHandlerGet.showError('Please select bid amount!');
+            return false;
+        } 
+        return true;
+    }
+    function resetBet() {
+        currentBid = 0;
+        selectedMultiplier = 1;
+        updateCurrentBid();
+         
+        document.querySelectorAll('.multiplayer-btn, .bet-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+         
+        const defaultMultiplierBtn = document.querySelector('[data-multiplier="1"]');
+        if (defaultMultiplierBtn) {
+            defaultMultiplierBtn.classList.add('active');
+        }
+    }
+        
+    function closeBetModal() {
+        betModal.classList.remove('visible');
+        resetBet();
+    }
+   
+    function clearSelections() {
+        localStorage.removeItem('selectedColor');
+        localStorage.removeItem('selectedSize');
+        localStorage.removeItem('selectedNumber');
+        localStorage.removeItem('selectedMultiplier');
+    }
+ 
+    
+    function applyBidStyling(bidDetails) {
+        if (!bidDetails) return;
+        
+        // Get fresh references to elements
+        const colorButtons = document.querySelectorAll('.color-btn');
+        const sizeButtons = document.querySelectorAll('.size-btn');
+        const numberItems = document.querySelectorAll('.number-item');
+        
+        // Helper to normalize text for comparison
+        const normalize = (text) => text.trim().toLowerCase().replace(/\s+/g, '');
+
+        // Apply color selection
+        if (bidDetails.user_Select_Color) {
+            const targetColor = normalize(bidDetails.user_Select_Color);
+            let colorBtn;
+            
+            colorButtons.forEach(btn => {
+                if (normalize(btn.textContent) === targetColor) {
+                    colorBtn = btn;
+                }
+            });
+            
+            if (colorBtn) {
+                colorButtons.forEach(btn => {
+                    btn.style.transform = '';
+                    btn.style.boxShadow = '0 6px 12px rgba(0, 0, 0, 0.4)';
+                });
+                colorBtn.style.transform = 'scale(1.15)';
+                colorBtn.style.boxShadow = '0 0 25px #4cc9f0, 0 0 35px #4cc9f0';
+            }
+        }
+
+        // Apply size selection
+        if (bidDetails.user_Select_Size) {
+            const targetSize = normalize(bidDetails.user_Select_Size);
+            let sizeBtn;
+            
+            sizeButtons.forEach(btn => {
+                if (normalize(btn.textContent) === targetSize) {
+                    sizeBtn = btn;
+                }
+            });
+            
+            if (sizeBtn) {
+                sizeButtons.forEach(btn => {
+                    btn.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
+                });
+                sizeBtn.style.boxShadow = '0 0 20px rgba(247, 37, 133, 0.7)';
+            }
+        }
+
+        // Apply exact number selection
+        if (bidDetails.user_Select_Exact_number) {
+            const targetNumber = bidDetails.user_Select_Exact_number.trim();
+            let numberBtn;
+            
+            numberItems.forEach(item => {
+                if (item.textContent.trim() === targetNumber) {
+                    numberBtn = item;
+                }
+            });
+            
+            if (numberBtn) {
+                numberItems.forEach(item => {
+                    item.style.transform = '';
+                    item.style.boxShadow = '0 6px 12px rgba(0, 0, 0, 0.4)';
+                });
+                numberBtn.style.transform = 'scale(1.15)';
+                numberBtn.style.boxShadow = '0 0 25px #4cc9f0, 0 0 35px #4cc9f0';
+            }
+        }
+
+        // Apply multiplier
+        const multipliers = [
+            bidDetails.multiplyer_number_Color,
+            bidDetails.multiplyer_number_Size,
+            bidDetails.multiplyer_number_Exact_number
+        ];
+        const maxMultiplier = Math.max(...multipliers.filter(m => m));
+        
+        if (maxMultiplier > 0) {
+            setMultiplier(maxMultiplier);
+        }
+    } 
+ 
+    colorButtons.forEach(button => {
+        button.addEventListener('click', () => { 
+            colorButtons.forEach(btn => {
+                btn.style.transform = '';
+                btn.style.boxShadow = '0 6px 12px rgba(0, 0, 0, 0.4)';
+            });
+            button.style.transform = 'scale(1.15)';
+            button.style.boxShadow = '0 0 25px #4cc9f0, 0 0 35px #4cc9f0'; 
+        });
+    });
+
+    sizeButtons.forEach(button => {
+        button.addEventListener('click', () => { 
+            sizeButtons.forEach(btn => {
+                btn.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
+            });
+            button.style.boxShadow = '0 0 20px rgba(247, 37, 133, 0.7)'; 
+        });
+    });
+
+    numberItems.forEach(item => {
+        item.addEventListener('click', () => { 
+            numberItems.forEach(i => {
+                i.style.transform = '';
+                i.style.boxShadow = '0 6px 12px rgba(0, 0, 0, 0.4)';
+            });
+            item.style.transform = 'scale(1.15)';
+            item.style.boxShadow = '0 0 25px #4cc9f0, 0 0 35px #4cc9f0'; 
+        });
+    });
+  
+    function waitForBidElements(callback, attempt = 0) {
+        const maxAttempts = 10;
+        const colorExists = document.querySelectorAll('.color-btn').length > 0;
+        const sizeExists = document.querySelectorAll('.size-btn').length > 0;
+        const numbersExist = document.querySelectorAll('.number-item').length > 0;
+        
+        if (colorExists && sizeExists && numbersExist) {
+            callback();
+        } else if (attempt < maxAttempts) {
+            setTimeout(() => waitForBidElements(callback, attempt + 1), 100);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        connectWebSocket();
+        setupGameOptions();
+        setupBetModal();
+        fetchBalance(); 
+    });
+
+</script>
+ 
+ 
+<script>
+    let currentAmountGroup = 0; 
+    const amountGroups = 3;  
+    function updateNavigation() {
+        const prevArrow = document.querySelector('.prev-arrow');
+        const nextArrow = document.querySelector('.next-arrow');
+        
+        // prevArrow.classList.toggle('disabled', currentAmountGroup === 0);
+        // nextArrow.classList.toggle('disabled', currentAmountGroup === amountGroups - 1);
+    }
+    function changeAmountPage(direction) {
+        currentAmountGroup += direction;
+         
+        if(currentAmountGroup < 0) currentAmountGroup = amountGroups - 1;
+        if(currentAmountGroup >= amountGroups) currentAmountGroup = 0;
+         
+        document.querySelectorAll('.amount-group').forEach(group => {
+            group.classList.toggle('hidden', 
+                parseInt(group.dataset.group) !== currentAmountGroup
+            );
+        });
+    }
+
+    updateNavigation(); 
+    document.querySelector(`[data-group="0"]`).classList.remove('hidden');
+</script>
+
+  {% include 'layout/HomePage/Footer_Home.html' %}
+  {% load static %}
+
+
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script> 
+  
+</body>
+</html>

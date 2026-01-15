@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+     {% load static %}
+   {% include 'layout/account/header.html' %}
+    <title> Earn9Game | login </title>
+</head>
+<body>
+      <div class="login-form">
+         <div class="text">
+            LOGIN  
+         </div>
+         <form  id="loginForm" onsubmit="event.preventDefault(); submitLoginForm();" method="POST" enctype="multipart/form-data">
+             {% csrf_token %}
+            <div class="field">
+               <!-- <div class="fas fa-envelope" id="email"></div> -->
+               <div class="fas fa-mobile-alt" id="mobile"></div>
+               <input type="text" name="email_or_phone"  id="email_or_phone"  placeholder="+923121234567">
+            </div>
+            <div class="field">
+               <div class="fas fa-lock"></div>
+               <input type="password" name="password" id="password" placeholder="Password">
+               <i class="fas fa-eye toggle-password" 
+                     role="button" 
+                     aria-label="Show password"
+                     tabindex="0" ></i>
+            </div>
+             <div class="link"> 
+               <a href="#">Forggot Password</a>
+            </div>
+            <button type="submit">LOGIN</button>
+            <div class="link">
+               Not a member?
+               <a href="{% url 'register_page' %}">Signup now</a>
+            </div>
+         </form >
+      </div>
+ 
+     {% load static %}
+    {% include 'layout/account/footer.html' %}
+
+    
+</body>
+
+</html>
+ 

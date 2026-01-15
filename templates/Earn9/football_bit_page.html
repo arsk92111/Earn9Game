@@ -1,0 +1,576 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foot Ball Hit Game - Earn9</title>
+    {% load static %}
+    <script src="https://cdn.tailwindcss.com"></script> 
+    <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/htmx-ext-ws@2.0.2" integrity="sha384-vuKxTKv5TX/b3lLzDKP2U363sOAoRo5wSvzzc3LJsbaQRSBSS+3rKKHcOx5J8doU" crossorigin="anonymous"></script> 
+    <link rel="stylesheet" href="{% static 'AllGame/css/cardgame.css' %}">   
+    
+    {% include 'layout/HomePage/Header_Home.html' %}
+
+<style>  
+        
+        .coin-btn {
+            background: linear-gradient(145deg, #2d3748, #1f2937);
+            border: 1px solid rgba(59,130,246,0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+        }
+
+        .coin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59,130,246,0.2);
+        }
+
+        .coin-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, 
+                transparent 0%,
+                rgba(59,130,246,0.1) 50%,
+                transparent 100%
+            );
+            animation: scanline 3s linear infinite;
+        }
+ 
+        
+        @media (max-width: 768px) { 
+            .bet-controls {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.5rem;
+            }
+
+            .coin-btn {
+                padding: 0.75rem;
+                font-size: 1rem;
+            }
+        }
+        
+        
+        .player-bet {
+            animation: slideIn 0.3s ease-out;
+        }
+ 
+        
+        .bet-display {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(45deg, rgba(59,130,246,0.3), rgba(99,102,241,0.2));
+            padding: 8px 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(59,130,246,0.3);
+            box-shadow: 0 0 15px rgba(59,130,246,0.2);
+            z-index: 2;
+        }
+
+        .total-bet {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(17, 24, 39, 0.9);
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 0.9em;
+            border: 1px solid rgba(59,130,246,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .bet-display {
+                padding: 6px 12px;
+                font-size: 0.8em;
+            }
+            .total-bet {
+                font-size: 0.7em;
+                padding: 4px 8px;
+            }
+        } 
+        
+                /* Add these styles */
+        .nav-arrow {
+            transition: all 0.3s ease;
+            min-width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .amount-groups {
+            position: relative;
+            min-height: 40px;
+            min-width: 80px;
+        }
+
+        .amount-group {
+            position: absolute;
+            width: 100%;
+            display: flex;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.1rem;
+            transition: opacity 0.3s ease;
+        }
+
+        .amount-group.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .amount-group:not(.hidden) {
+            position: relative;
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .nav-arrow {
+                padding: 0.5rem;
+            }
+            
+        }
+
+
+        /* Responsive Adjustments */
+        @media (min-width: 768px) {
+            .bg-gray-800.p-6.rounded-xl.neon-box {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+            
+            .grid.grid-cols-2.md\:grid-cols-4 {
+                flex: 2;
+                justify-content: flex-end;
+            }
+            
+            .coin-btn {
+                min-width: 65px;
+                min-height: 40px;
+                flex: none;
+            }
+            
+            .flex.flex-col.md\:flex-row {
+                flex: 1;
+                margin-bottom: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .flex.flex-col.md\:flex-row {
+                flex-direction: column;
+                /* gap: 0.75rem; */
+            }
+            
+            #confirm-bet-btn {
+                width: fit-content;
+                font-size: small;
+            }
+            
+            .coin-btn {
+                min-width: calc(10% - 0.25rem);
+            }
+        }
+
+        /* Responsive Adjustments */
+        
+        @media (max-width: 320px) {
+
+            
+            .bg-gray-800.p-6.rounded-xl.neon-box {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+            
+            .grid.grid-cols-2.md\:grid-cols-4 {
+                flex: 2;
+                justify-content: flex-end;
+            }
+            
+            
+            .flex.flex-col.md\:flex-row {
+                flex: 1;
+                margin-bottom: 0;
+            }
+            .flex.flex-col.md\:flex-row {
+                flex-direction: column;
+                gap: 0.45rem;
+            }
+            
+            #confirm-bet-btn {
+                width: fit-content;
+                font-size: small;
+            }
+            
+            .coin-btn {
+                min-width: calc(5% - 0.15rem);
+                /* padding: 0.25rem; */
+                font-size: 0.6rem;
+            }
+        }
+   
+        @keyframes winnerFlash {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            30% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+            60% {
+                opacity: 1;
+                transform: scale(1.6);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(2);
+            }
+        }
+         
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+</style>
+
+</head> 
+<body class="game-container"> 
+
+  <div id="bet-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+      <div class="bg-gray-800 p-10 rounded-lg max-w-md">
+          <h2 class="text-2xl text-white mb-4">Place Your Bet</h2>
+          
+          <div class="bg-gray-800 p-4 rounded-xl neon-box"> 
+              <button onclick="confirmBet()" id="confirm-bet-btn"
+                  class="bg-gradient-to-r mb-1 from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 px-2 py-2 rounded-lg transition-all neon-button text-xs sm:text-base">
+                  🚀 CURRENT BET: <span id="current-bid" class="font-bold text-black-400">0</span>
+              </button>
+          
+              <div class="flex items-center  gap-2 ">
+                  <button onclick="changeAmountPage(-1)" 
+                          class="nav-arrow prev-arrow px-3 py-2 rounded-lg bg-gray-700 hover:bg-gray-600">
+                      &lt;&lt;
+                  </button>
+                  
+                  <div class="amount-groups relative w-full max-w-xs sm:max-w-sm md:max-w-md overflow-hidden">
+                      <div class="amount-groups-wrapper flex transition-transform duration-300 ease-in-out" style="transform: translateX(0);">
+      
+                          <div class="amount-group  shrink-0 w-full flex justify-center gap-2" data-group="0">
+                              <button data-amount="20" class="coin-btn">+20</button>
+                              <button data-amount="100" class="coin-btn">+100</button>
+                              <button data-amount="500" class="coin-btn">+500</button> 
+                          </div>
+                          
+                          <div class="amount-group  shrink-0 w-full flex justify-center gap-2" data-group="1">
+                              <button data-amount="1000" class="coin-btn">1K</button>
+                              <button data-amount="5000" class="coin-btn">5k</button>
+                              <button data-amount="10000" class="coin-btn">10K</button> 
+                          </div>
+                          
+                          <div class="amount-group  shrink-0 w-full flex justify-center gap-2" data-group="2">
+                              <button data-amount="20000" class="coin-btn">+20K</button>
+                              <button data-amount="50000" class="coin-btn">+50K</button>
+                              <button data-amount="100000" class="coin-btn">+100K</button> 
+                          </div>
+                      </div>
+                  </div>
+                  
+                  <button onclick="changeAmountPage(1)" 
+                          class="nav-arrow next-arrow px-3 py-2 rounded-lg bg-gray-700 hover:bg-gray-600">
+                      &gt;&gt;
+                  </button>
+              </div>
+          </div>
+
+      </div> 
+  </div>
+
+  <div id="waiting-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+      <div class="bg-gray-800 p-6 rounded-lg w-96">
+          <h2 class="text-2xl text-white mb-4">Searching Opponent...</h2>
+          <div id="waiting-text" class="text-white text-center">
+              Matching you with an opponent with same bet amount
+          </div>
+          <div class="text-center mt-4">
+              <div class="loader"></div>
+          </div>
+      </div>
+  </div>
+  <div id="error-message" class="fixed top-4 right-4 bg-red-600 text-white p-3 rounded hidden"></div>
+
+
+  {% include 'layout/HomePage/Footer_Home.html' %}
+  {% load static %}
+  
+<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script> 
+ 
+<script> 
+  let socket;  
+  let currentBid = 0;
+  let balance = 0;  
+  let reconnectAttempts=0;
+  const currentBidElement = document.getElementById('current-bid'); 
+
+  async function fetchBalance() {
+      try {
+          const response = await fetch('/Earn/api/my_profile/', {
+              headers: {
+                  'Authorization': `Bearer ${localStorage.getItem("access_token")}`
+              }
+          });
+          const data = await response.json();
+          balance = data?.data?.coins;
+          updateBalanceDisplay();
+      } catch (error) { 
+            NotificationHandlerGet.showError('Balance fetch failed:');
+      }
+  }
+
+  fetchBalance();
+
+  function initWebSocket() { 
+      socket = new WebSocket(
+          (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + 
+          window.location.host + '/ws/football_bitLand/bid_room/'
+      );
+         
+      socket.onopen = () => {
+        const sessionId = localStorage.getItem('currentSession');
+        if(sessionId) { 
+            document.getElementById('bet-modal').classList.add('hidden');
+            document.getElementById('waiting-modal').classList.remove('hidden');
+            
+            socket.send(JSON.stringify({
+                action: 'reconnect',
+                session_id: sessionId,
+                user_id: localStorage.getItem('user_id')
+            }));
+        }
+    };
+
+      socket.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          handleSocketMessage(data);
+      };
+      
+      socket.onclose = (e) => { 
+          NotificationHandlerGet.showError(`Socket closed. Reconnect attempt: ${reconnectAttempts}`);
+          if(reconnectAttempts < 5) {
+              setTimeout(() => {
+                  reconnectAttempts++;
+                  initWebSocket();
+              }, Math.min(1000 * reconnectAttempts, 5000));
+          }
+      }; 
+  }
+
+    function handleSocketMessage(data) {
+        switch(data.type) { 
+            case 'redirect':
+                if(!window.location.pathname.includes(data.game_id)) {
+                    localStorage.removeItem('currentSession');
+                    window.location.href = `/Earn/page/football_playLand/${data.game_id}/`;
+                }
+                break;
+            case 'waiting':
+                localStorage.setItem('currentSession', data.game_id);
+                document.getElementById('bet-modal').classList.add('hidden');
+                document.getElementById('waiting-modal').classList.remove('hidden');
+                startExpirationTimer();
+                break;
+            case 'session_clear':
+                localStorage.removeItem('currentSession');
+                document.getElementById('waiting-modal').classList.add('hidden');
+                document.getElementById('bet-modal').classList.remove('hidden');
+                break;
+        }
+    }
+ 
+    document.addEventListener('DOMContentLoaded', () => {
+        const sessionId = localStorage.getItem('currentSession');
+        if(sessionId) {
+            socket.send(JSON.stringify({
+                action: 'reconnect',
+                game_id: sessionId
+            }));
+        }
+    }); 
+     
+    function startExpirationTimer() {
+        const timer = setTimeout(() => {
+            if(document.getElementById('waiting-modal').classList.contains('hidden')) return;
+            
+            socket.send(JSON.stringify({
+                action: 'check_expired',
+                game_id: localStorage.getItem('currentSession')
+            }));
+            
+            localStorage.removeItem('currentSession');
+            document.getElementById('waiting-modal').classList.add('hidden');
+            document.getElementById('bet-modal').classList.remove('hidden');
+            NotificationHandlerGet.showError('No opponent found within 3 minutes');
+        }, 180000);
+        
+        window.expirationTimer = timer;
+    } 
+ 
+  function handleCoinClick(e) {
+      const amount = parseInt(e.target.dataset.amount);
+      if (currentBid + amount > balance) {
+        NotificationHandlerGet.showError('Insufficient balance!');
+          return;
+      }
+      currentBid += amount;
+      currentBidElement.textContent = currentBid;
+  }
+
+  function showBetModal() {
+      document.getElementById('bet-modal').classList.remove('hidden'); 
+  }
+
+  function updateBalanceDisplay() {
+      const balanceElement = balance;
+      if (balanceElement) {
+          
+          balanceElement.textContent = balance;
+      }
+      
+      document.querySelectorAll('.coin-btn').forEach(btn => {
+          btn.disabled = balance <= 0;
+      });
+  }
+ 
+  async function confirmBet() { 
+      if(!socket || socket.readyState !== WebSocket.OPEN) { 
+          NotificationHandlerGet.showError(`Connection error. Please refresh`);
+          return;
+      }
+      if(currentBid < 20) { 
+          NotificationHandlerGet.showError(`Minimum bet is 20 coins!`);
+          return;
+      }
+      
+      if(currentBid > balance) { 
+          NotificationHandlerGet.showError(`Insufficient balance!`);
+          return;
+      }
+
+      document.getElementById('bet-modal').classList.add('hidden');
+      document.getElementById('waiting-modal').classList.remove('hidden'); 
+      localStorage.setItem('currentBet', currentBid); 
+      const prevBalance = balance;
+      fetchAuthenticatedPlayerData(); 
+   
+      socket.send(JSON.stringify({
+          action: 'confirm_bet', 
+          amount: currentBid
+      }));        
+   
+      balance = prevBalance - currentBid;
+      updateBalanceDisplay(); 
+      setTimeout(async () => {
+          await fetchBalance();
+      }, 1000); 
+      
+  }
+
+  function updateCurrentBidDisplay() { 
+      if (currentBid > balance) {
+          currentBid = balance;
+      }
+      document.getElementById('current-bid').textContent = currentBid.toLocaleString();
+       
+      document.querySelectorAll('.coin-btn').forEach(btn => {
+          const amount = parseInt(btn.dataset.amount);
+          btn.disabled = (currentBid + amount) > balance;
+      });
+  }
+
+  function initializeCoinButtons() {
+      document.querySelectorAll('.coin-btn').forEach(btn => {
+          btn.replaceWith(btn.cloneNode(true));
+      });
+
+      document.querySelectorAll('.coin-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+              const amount = parseInt(btn.dataset.amount);
+              if (currentBid + amount > balance) { 
+                NotificationHandlerGet.showError(`Insufficient balance!`);
+                return;
+              }
+              currentBid += amount;
+              updateCurrentBidDisplay();
+          });
+      });
+  }
+
+    function updateBet(amount) {
+      currentBid += amount;
+      if(currentBid < 0) currentBid = 0;
+      document.getElementById('current-bet').textContent = currentBid;
+    }
+
+    function handleGameStart(data) {
+        window.location.href = `/Earn/page/football_playLand/${game_id}/`; 
+    }
+     
+  document.addEventListener('DOMContentLoaded', () => {
+        
+      initWebSocket();  
+      fetchBalance(); 
+      initializeCoinButtons(); 
+      
+  });
+    
+</script>
+
+
+
+
+<script>
+  let currentAmountGroup = 0; 
+  const amountGroups = 3; 
+  
+  function updateNavigation() {
+      const prevArrow = document.querySelector('.prev-arrow');
+      const nextArrow = document.querySelector('.next-arrow');
+      
+      prevArrow.classList.toggle('disabled', currentAmountGroup === 0);
+      nextArrow.classList.toggle('disabled', currentAmountGroup === amountGroups - 1);
+  }
+  function changeAmountPage(direction) {
+      currentAmountGroup += direction; 
+      if(currentAmountGroup < 0) currentAmountGroup = amountGroups - 1;
+      if(currentAmountGroup >= amountGroups) currentAmountGroup = 0; 
+      document.querySelectorAll('.amount-group').forEach(group => {
+          group.classList.toggle('hidden', 
+              parseInt(group.dataset.group) !== currentAmountGroup
+          );
+      });
+  }
+
+  updateNavigation(); 
+  document.querySelector(`[data-group="0"]`).classList.remove('hidden');
+</script>
+
+</body>
+</html>

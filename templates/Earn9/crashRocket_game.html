@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> 
+    <title>Rocket Crash Game - Earn9</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> 
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"> 
+  
+    {% load static %}
+    <script src="https://cdn.tailwindcss.com"></script>  
+    <link rel="stylesheet" href="{% static 'crashRocket/css/crashRocket.css' %}">    
+    {% include 'layout/HomePage/Header_Home.html' %}
+
+
+<style>
+        
+    .game-container {
+        width: 100%; 
+        background: rgba(12, 18, 36, 0.97);
+        border-radius: 20px;
+        box-shadow: 0 0 60px rgba(0, 100, 255, 0.7);
+        padding: 2px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(80, 120, 200, 0.3);
+    }
+     
+    .game-area-container {
+        flex: 4;
+        position: relative;
+        background: rgba(5, 15, 35, 0.8);
+        border-radius: 15px;
+        padding: 5px;
+        border: 1px solid #ff6b35;
+    }
+    
+    .game-area {
+        height: 400px;
+        position: relative;
+        overflow: hidden;
+        border: 2px solid rgba(80, 120, 200, 0.5);
+        border-radius: 12px;
+        background: linear-gradient(to bottom, #0a1429, #0a0f1a);
+        box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8);
+    }
+     
+    .controls-area {
+        flex: 2;
+        background: rgba(20, 30, 60, 0.85);
+        border-radius: 15px;
+        border: 2px solid #ff6b35;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    } 
+    /* Rocket styling - Perfect 45 degree alignment */
+    .rocket-container {
+        position: absolute;
+        bottom: 50px;
+        left: 100px;
+        z-index: 20;
+        transform-origin: center;
+        transform: rotate(45deg);
+    }
+    
+    .rocket {
+        position: absolute;
+        top: 100px;
+        width: 80px;
+        height: 150px;
+        position: relative;
+    }
+    
+    .rocket-body {
+            background: url('../../../static/crashRocket/img/rocket.png') no-repeat center center fixed;
+            background-size: 100% 100%;
+        position: absolute; 
+        width: 80%;
+        height: 50%; 
+        border-radius: 8px 8px 4px 4px;
+        rotate: 322deg;
+        
+    }
+ 
+    .rocket-flames {
+        position: absolute;
+        bottom: -75px;
+        left: 20px;
+        width: 15px;
+        height: 70px;
+        transform: rotate(180deg);
+        transform-origin: top;
+    } 
+    .flame-main {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, #ff9a3d, #ff6b35, #ff3a30);
+        border-radius: 50% 50% 0 0;
+        animation: flame 0.1s infinite alternate;
+        filter: blur(4px);
+    }
+    
+    .flame-inner {
+        position: absolute;
+        width: 100%;
+        height: 90%;
+        background: radial-gradient(circle, #ffff00, #ff6b35);
+        border-radius: 50% 50% 0 0;
+        animation: flame-inner 0.08s infinite alternate;
+        filter: blur(2px);
+        top: 20px;
+        left: 0;
+    }
+     
+    @keyframes flame {
+        0% { height: 100px; opacity: 1; }
+        100% { height: 80px; opacity: 0.8; }
+    }
+    
+    @keyframes flame-inner {
+        0% { height: 90%; opacity: 1; }
+        100% { height: 80%; opacity: 0.7; }
+    }
+    
+    .multiplier-display {
+        position: absolute;
+        top: 125px;
+        left: 60%;
+        transform: translateX(-10%);
+        background: rgba(0, 0, 0, 0.7);
+        padding: 1px;
+        border-radius: 50px;
+        font-weight: bold;
+        color: #fff;
+        font-size: 1rem;
+        border: 1px solid #35c3ff;
+        box-shadow: 0 0 10px rgb(53 215 255 / 60%);
+        min-width: 70px;
+        text-align: center;
+        z-index: 30;
+        rotate: 270deg;
+    }
+
+    @media (max-width: 500px){ 
+        .rocket-container {
+            position: absolute;
+            bottom: 1px;
+            left: 90px;
+            z-index: 20;
+            transform-origin: center;
+            transform: rotate(45deg);
+        }
+        
+        .rocket { 
+            position: absolute;
+            top: 100px;
+            width: 80px;
+            height: 150px;
+            position: relative;
+        }
+        
+        .rocket-body {  
+            position: absolute; 
+            width: 60%;
+            height: 30%; 
+            border-radius: 8px 8px 4px 4px;
+            rotate: 315deg;
+        }
+        
+        .rocket-window {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: radial-gradient(circle, #0dcaf0, #0088cc);
+            border-radius: 50%;
+            top: 8px;
+            left: 12px;
+            box-shadow: 0 0 10px #0dcaf0;
+            border: 2px solid #00aaff;
+        }
+        
+        .rocket-flames {
+            position: absolute;
+            bottom: -55px;
+            left: 15px;
+            width: 8px;
+            height: 70px;
+            transform: rotate(180deg);
+            transform-origin: top;
+        }
+        
+        .flame-main {
+            position: absolute;
+            width: 0%;
+            height: 40%;
+            background: radial-gradient(circle, #ff9a3d, #ff6b35, #ff3a30);
+            border-radius: 50% 50% 0 0;
+            animation: flame 0.1s infinite alternate;
+            filter: blur(4px);
+        }
+        
+        .flame-inner {
+            position: absolute;
+            width: 100%;
+            height: 90%;
+            background: radial-gradient(circle, #ffff00, #ff6b35);
+            border-radius: 50% 50% 0 0;
+            animation: flame-inner 0.08s infinite alternate;
+            filter: blur(2px);
+            top: 35px;
+            left: -2px;
+        }
+        
+        .multiplier-display {
+            position: absolute;
+            top: 100px;
+            left: 40%;
+            transform: translateX(-10%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 1px;
+            border-radius: 50px; 
+            font-size: 0.7rem;  
+            min-width: 50px;  
+            rotate: 270deg;
+        }
+    }
+  
+    .explosion {
+        position: absolute;
+        width: 150px;
+        height: 150px;
+        background: radial-gradient(circle, #fd9c41, #f55920, #fa2a1f);
+        border-radius: 50%;
+        animation: explode 0.8s forwards;
+        z-index: 100;
+        filter: blur(8px);
+    }
+    
+    @keyframes explode {
+        0% { transform: scale(0.5); opacity: 1; }
+        70% { transform: scale(3); opacity: 0.8; }
+        100% { transform: scale(4); opacity: 0; }
+    }
+    
+    .explosion-particle {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        background: #ff9a3d;
+        border-radius: 50%;
+        animation: particle 1s forwards;
+        z-index: 90;
+    }
+    
+    @keyframes particle {
+        0% { transform: translate(0, 0); opacity: 1; }
+        100% { transform: translate(var(--tx), var(--ty)); opacity: 0; }
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+        
+    .form-label {
+        font-weight: bold;
+        color: #ff9a3d;
+        font-size: 1rem;
+        margin-bottom: 6px;
+        display: block;
+    }
+    
+    .form-control {
+        background: rgba(5, 15, 35, 0.9);
+        border: 1px solid #ff6b35;
+        color: white;
+        padding: 10px 12px;
+        font-size: 1rem;
+        border-radius: 8px;
+        width: 100%;
+        transition: all 0.3s;
+    }
+    
+    .form-control:focus {
+        background: rgba(5, 15, 35, 1);
+        border: 1px solid #ff9a3d;
+        color: white;
+        box-shadow: 0 0 15px rgba(255, 107, 53, 0.6);
+        outline: none;
+    }
+        
+    
+    /* Falling values */
+    .falling-value {
+        position: absolute;
+        font-weight: bold;
+        color: #ff9a3d;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 1px 3px;
+        border-radius: 20px;
+        z-index: 15;
+        animation: fall 2s forwards;
+        text-align: center;
+        border: 1px solid #ff6b35;
+        box-shadow: 0 0 15px rgba(255, 107, 53, 0.6);
+        font-size: 0.8rem;
+    }
+    
+    .falling-value.winner {
+        color: #4ade80;
+        border-color: #4ade80;
+        box-shadow: 0 0 15px rgba(74, 222, 128, 0.6);
+    }
+    
+    .falling-value.loser {
+        color: #f87171;
+        border-color: #f87171;
+        box-shadow: 0 0 15px rgba(248, 113, 113, 0.6);
+    }
+     
+    @keyframes fall {
+        0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+        100% { transform: translate(0, 250px) rotate(10deg); opacity: 0; }
+    }
+    
+    /* Controls */
+    .controls-section {
+        margin-bottom: 20px;
+    }
+    
+    .bet-form {
+        background: rgba(0, 20, 50, 0.7);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid #ff6b35;
+    }
+       
+    
+    .btn-bet {
+        background: linear-gradient(to right, #ff9a3d, #ff6b35);
+        border: none;
+        padding: 12px 25px;
+        font-weight: bold;
+        font-size: 1.1rem;
+        border-radius: 50px;
+        color: #0c192c;
+        transition: all 0.3s;
+        width: 100%;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 8px;
+        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+        cursor: pointer;
+    }
+    
+    .btn-bet:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(255, 107, 53, 0.7);
+    } 
+      
+    
+    /* Animations */
+    @keyframes float {
+        0% { transform: rotate(45deg) translateY(0); }
+        50% { transform: rotate(45deg) translateY(-50px); }
+        100% { transform: rotate(45deg) translateY(0); }
+    }
+    
+    .rocket-container {
+        animation: float 3s ease-in-out infinite;
+    }
+    
+       /* Responsive */
+    @media (max-width: 500px) {
+        .main-content {
+            flex-direction: column;
+        }
+        
+        .game-area {
+            height: 360px;
+        }
+    } 
+    
+    #gameArea {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        background: linear-gradient(to bottom, #000011, #001122);
+    }
+
+    .stars {
+        position: absolute;
+        background: white;
+        border-radius: 50%;
+        opacity: 0;
+        animation-name: moveStars, twinkle;
+        animation-timing-function: linear, ease-in-out;
+        animation-iteration-count: infinite;
+    }
+    #moon, #sun {
+        position: absolute;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        z-index: 2;
+    }
+    #moon {
+        background: radial-gradient(white, gray);
+        opacity: 1;
+        top: 10vh;
+        left: 90vw;
+    }
+    #sun {
+        background: radial-gradient(yellow, orange);
+        opacity: 0;
+        top: 60vh;
+        left: -10vw;
+    }
+    @keyframes moveStars {
+        0% { transform: translate(0, 0); }
+        100% { transform: translate(-100vw, 100vh); }
+    }
+    @keyframes twinkle {
+        0%, 100% { opacity: 0.3; }
+        50% { opacity: 1; }
+    }
+    @keyframes moveMoon {
+        0% { top: 10vh; left: 90vw; }
+        100% { top: 60vh; left: -10vw; }
+    }
+    @keyframes moveSun {
+        0% { top: 60vh; left: -10vw; }
+        100% { top: 10vh; left: 90vw; }
+    }
+ 
+    
+    /* Grid system styles */
+    .grid-line {
+        position: absolute;
+        z-index: 2;
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .grid-line.vertical {
+        width: 1px;
+        height: 100%;
+        top: 0;
+    }
+
+    .grid-line.horizontal {
+        width: 100%;
+        height: 1px;
+        left: 0;
+    }
+
+    .grid-label {
+        position: absolute;
+        z-index: 3;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.7);
+        /* background: rgba(0, 0, 0, 0.4); */
+        padding: 2px 5px;
+        border-radius: 3px;
+        transition: all 0.2s;
+    }
+
+    .grid-label.x-label {
+        bottom: -11px;
+        transform: translateX(-50%);
+    }
+
+    .grid-label.y-label {
+        left: 1px;
+        transform: translateY(50%);
+    }
+     
+    /* Cyberpunk Timer */
+    .timer-container {
+        background: rgba(17, 24, 39, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(59,130,246,0.3);
+        box-shadow: 0 0 20px rgba(59,130,246,0.2);
+        position: relative;
+        overflow: hidden;
+    }
+    .timer-container::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(45deg, 
+            transparent 0%,
+            rgba(59,130,246,0.1) 50%,
+            transparent 100%
+        );
+        animation: scanline 6s linear infinite;
+    }
+    #timer {
+        background: linear-gradient(45deg, #8b5cf6, #3b82f6);
+        -webkit-background-clip: text;
+        background-clip: text;
+        text-shadow: 0 0 10px rgba(59,130,246,0.5);
+        font-family: 'Orbitron', sans-serif;
+    }
+    /* Mobile Optimizations */
+    @media (max-width: 660px) { 
+        #timer {
+            font-size: 0.8rem;
+        }
+        #timer_title {
+            font-size: 1rem;
+        }
+        .timer-container span {
+            font-size: 0.875rem;
+        }
+
+    }
+   
+</style>
+
+</head>
+<body>
+ 
+    <div class="game-container">  
+        <div class="flex flex-col md:flex-row justify-between align-items justify-center items-center gap-1 neon-border">
+            <div class="flex items-center space-x-4 header-glow inline-block rounded-full timer-container">
+                <h1 id="timer_title" class="text-2xl md:text-3xl font-bold text-white">⚡ ROCKET CRASH  
+                    <span id="timer" class="text-2xl md:text-3xl font-bold text-white">30</span>  
+                ⚡</h1>
+            </div>
+        </div>  
+        <div class="main-content">
+            <div class="game-area-container">
+                <div class="game-area" id="game-area">  
+                    <div class="coordinate-system" id="coordinateSystem"></div>
+                    
+                    <div class="rocket-container" id="rocket-container">
+                        <div class="rocket">
+                            <div class="rocket-body"></div>
+                            <div class="rocket-flames">
+                                <div class="flame-main"></div>
+                                <div class="flame-inner"></div>
+                            </div>
+                        </div>
+                        <div class="multiplier-display" id="multiplier-display">0.01x</div>
+                    </div>
+                </div> 
+            </div>
+             
+        <div class="bg-gray-900 p-1 sm:p-6 rounded-2xl shadow-2xl w-full max-w-md neon-box relative animate-fade-in">
+            
+            <div class="modal-header text-center">
+              <div class="text-center mb-1">
+                    <h2 class="text-xl sm:text-2xl font-bold text-green-400"> Place Your Bet</h2> 
+              </div>
+            </div> 
+            <div id="MainGuessBet"> 
+                <div class="mb-3"> 
+                    <div class="form-group">
+                        <div class="flex"> 
+                            <div class="flex-row"> 
+                                <label class="form-label">Flee Condition</label>
+                                <input type="number" class="form-control" id="player-bet" step="0.01" min="0.1" max="99.99" placeholder="1.01 - 99.99" value="0.1">
+                            </div>
+                            <div class="flex-row ml-8 mt-4">
+                                <button onclick="confirmBet()" id="confirm-bet-btn"
+                                class="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-3 p-3 rounded-xl text-sm sm:text-base font-bold transition">
+                                🚀 Place Bet: <span id="current-bid" class="text-white">0</span>
+                                </button> 
+                            </div>
+                        </div>
+                    </div> 
+                </div>
+
+                <div class="flex items-center justify-between mb-2 gap-2">
+                    <button onclick="changeAmountPage(-1)" class="nav-arrow bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg">
+                    &laquo;
+                    </button>
+            
+                    <div class="relative w-full max-w-xs overflow-hidden">
+                    <div class="amount-groups-wrapper flex transition-transform duration-300 ease-in-out" style="transform: translateX(0);">
+                        
+                        <div class="amount-group shrink-0 w-full flex justify-center gap-2" data-group="0">
+                        <button data-amount="20" class="coin-btn">+20</button>
+                        <button data-amount="100" class="coin-btn">+100</button>
+                        <button data-amount="500" class="coin-btn">+500</button>
+                        </div>
+                        
+                        <div class="amount-group shrink-0 w-full flex justify-center gap-2" data-group="1">
+                        <button data-amount="1000" class="coin-btn">1K</button>
+                        <button data-amount="5000" class="coin-btn">5K</button>
+                        <button data-amount="10000" class="coin-btn">10K</button>
+                        </div>
+                        
+                        <div class="amount-group shrink-0 w-full flex justify-center gap-2" data-group="2">
+                        <button data-amount="20000" class="coin-btn">+20K</button>
+                        <button data-amount="50000" class="coin-btn">+50K</button>
+                        <button data-amount="100000" class="coin-btn">+100K</button>
+                        </div>
+            
+                    </div>
+                    </div>
+
+                    <button onclick="changeAmountPage(1)" class="nav-arrow bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg">
+                    &raquo;
+                    </button>
+                </div>
+            </div>
+            <div id="MindChangeGuess"> 
+                <div class="flex-row ml-8 mt-4">
+                    <button onclick="MindChangeGuessFunction()" id="confirm-bet-btn"
+                    class="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-3 p-3 rounded-xl text-sm sm:text-base font-bold transition">
+                    🚀 Guess: <span id="MindChange_at_Multipliyer" class="text-red">0.01x</span>
+                    </button> 
+                </div>
+            </div>
+      
+        </div> 
+        </div> 
+    </div>
+
+
+
+<script> 
+    let socket;
+    let balance = 0; 
+    let isConnecting = false;
+    let reconnectAttempts = 0;  
+    let currentBid = 0;
+    
+    let gameActive = false;
+    let players = [];
+    let crashMultiplier = 0;
+    let currentMultiplier = 0.01;
+    let gameLoop;
+    let rocketPosition = { x: 100, y: 100 };
+    let startPosition = { x: 1, y: 1 };
+    let crashPointDisplayed = false;
+        
+    let gridLines = [];
+    const gridInterval = 15;  
+    let lastFlightData = null;
+    
+    const rocketContainer = document.getElementById('rocket-container');
+    const multiplierDisplay = document.getElementById('multiplier-display'); 
+    const MindChangeMultipliyer = document.getElementById('MindChange_at_Multipliyer');   
+    const placeBetBtn = document.getElementById('confirm-bet-btn');
+    
+    const MindChangeGuess = document.getElementById('MindChangeGuess');
+    const MainGuessBet = document.getElementById('MainGuessBet');
+    MindChangeGuess.style.display = 'none'; 
+    MainGuessBet.style.display = "block";
+     
+    const playerBetInput = document.getElementById('player-bet');
+
+    const playerNameInput = "Arshad Ali";  
+     
+    let gamePhase = "waiting";  // waiting/flying/results
+
+
+     
+        
+    async function fetchBalance() {
+        try {
+            const response = await fetch('/Earn/api/my_profile/', {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem("access_token")}`
+                }
+            });
+            const data = await response.json();
+            balance = data?.data?.coins; 
+            updateBalanceDisplay();
+        } catch (error) {
+            console.error('Balance fetch failed:', error);
+        }
+    }
+
+    fetchBalance();
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        connectWebSocket();
+         
+        const balanceElement = balance;
+        if (balanceElement) {
+            balance = parseInt(balanceElement.textContent) || 0;
+            updateBalanceDisplay();
+        }
+        
+        document.querySelectorAll('.coin-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const amount = parseInt(btn.dataset.amount);
+                if (currentBid + amount  > balance) { 
+                    NotificationHandlerGet.showError(`Insufficient balance!`);
+                    return;
+                }
+                currentBid += amount;  
+                updateCurrentBidDisplay();
+            });
+        });
+    });
+     
+    function connectWebSocket() {
+        if (isConnecting) return;
+        
+        isConnecting = true;
+        socket = new WebSocket(
+            (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + 
+            window.location.host + '/ws/crashRocket_game/live_rocket_game/'
+        );
+
+        socket.onopen = () => {
+            isConnecting = false;
+            reconnectAttempts = 0;
+            console.log('✅ WebSocket connected'); 
+            currentPlayerId = "{{ obj_player.user.auth_token }}"; 
+            setTimeout(() => sendSocket({ action: 'get_initial_state' }), 500);
+        };
+
+        socket.onclose = (e) => {
+            isConnecting = false;
+            console.error('WebSocket disconnected. Retrying...');
+            reconnectAttempts++;
+            const delay = Math.min(3000 * reconnectAttempts, 3000);
+            setTimeout(connectWebSocket, delay);
+        };
+
+        socket.onerror = (e) => {
+            console.error("WebSocket error:", e);
+            socket.close();
+        };
+
+        socket.onmessage = (e) => {
+            try {
+                const data = JSON.parse(e.data);
+                handleSocketMessage(data);
+            } catch (error) {
+                console.error("Message parsing error:", error);
+            }
+        };
+    }
+        
+    function sendSocket(data) {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            try {
+                socket.send(JSON.stringify(data));
+            } catch (error) { 
+                NotificationHandlerGet.showError(`Error sending WebSocket message:${error}`);
+            }
+        } else { 
+            NotificationHandlerGet.showError(`WebSocket not connected. Message not sent :${data}`);
+        }
+    }
+     
+    function handleError(data) {
+        const errorMap = {
+            "Failed to initialize game": "Game is restarting...",
+            "Invalid round": "New round starting...",
+            "Insufficient balance": "Add coins to play"
+        };
+        
+        const message = errorMap[data.message]; 
+        if (message === undefined){
+            return 
+        }else{
+            NotificationHandlerGet.showError(` ${data.message.includes("Failed") ? 'warning' : 'error'}:${message}`);
+        }
+         
+    }
+      
+         
+    function handleSocketMessage(data) { 
+        const handlers = {
+            'timer_update': handleTimerUpdate,
+            'game.update': startFlyingRocket, 
+            'guess.updated': handleGuessUpdated,
+            'player.result': handlePlayerResult,
+            'round.start': handleRoundStart,
+            'bids.update': handleBidsUpdate,
+            'game.state': handleGameState,
+            // 'player.cashout': handlePlayerCashout,
+            // 'bet.confirmed': handleBetConfirmed,
+            'falling_values': handleFallingValue,
+            'error': handleError
+        };
+
+        if (data.type in handlers) {
+            handlers[data.type](data);
+        }
+    }
+ 
+    function handleTimerUpdate(data) {
+        document.getElementById('timer').textContent = data.timer;
+         
+        let phaseTitle = '';
+        if (data.phase === 'waiting') {
+            phaseTitle = '⚡ BETTING PHASE ⚡';
+            MainGuessBet.style.display = "block";
+            MindChangeGuess.style.display = 'none';
+            gamePhase = "waiting";
+        } else if (data.phase === 'fly') {
+            phaseTitle = '🚀 ROCKET FLYING 🚀';
+            MainGuessBet.style.display = "none";
+            MindChangeGuess.style.display = 'block';
+            gamePhase = "flying";
+        } else if (data.phase === 'results') {
+            phaseTitle = '💥 ROCKET CRASHED 💥';
+            gamePhase = "results";
+        }
+        
+        document.getElementById('timer_title').innerHTML = 
+            `${phaseTitle} <span id="timer">${data.timer}</span>`;
+    }
+ 
+    // function handleBetConfirmed(data) {
+    //     // NotificationHandlerGet.showSuccess(`Bet placed: ${data.amount} coins at ${data.guess}x!`);
+    // }
+
+    function handleGuessUpdated(data) { 
+        const playerIndex = players.findIndex(
+            p => p.auth_token === "{{ obj_player.user.auth_token }}"
+        );
+        
+        if (playerIndex !== -1) {
+            players[playerIndex].mind_change_guess = parseFloat(data.multiplier);
+        }
+        
+        NotificationHandlerGet.showSuccess(`Cashed out at ${data.multiplier}x!`);
+    }
+
+    function handlePlayerResult(data) {
+        if (data.result === 'win') {
+            NotificationHandlerGet.showSuccess(`You won ${data.amount} coins!`);
+        } else {
+            NotificationHandlerGet.showError("You didn't cash out in time!");
+        }
+        fetchBalance(); 
+    }
+
+    function handleRoundStart() {
+        resetGameUI();
+        NotificationHandlerGet.showInfo("New round starting!");
+    }
+
+    function handleBidsUpdate(data) {
+        document.getElementById('current-bid').textContent = data.total_bet.toLocaleString();
+        
+        players = data.participants.map(p => {
+            return {
+                auth_token: p.auth_token,
+                fullname: p.fullname,
+                amount: p.amount,
+                actual_guess: p.actual_guess,
+                mind_change_guess: p.mind_change_guess, // Add this
+                is_current_user: p.is_current_user,
+                passed: false
+            };
+        });
+    }
+
+    function handleGameState(data) { 
+        currentMultiplier = data.multiplier;
+        rocketPosition = data.position;
+        
+        multiplierDisplay.textContent = data.multiplier.toFixed(2) + 'x'; 
+        
+        if (data.crash_point) {
+            crashMultiplier = data.crash_point;
+        }
+         
+        handleTimerUpdate({
+            timer: data.timer,
+            phase: data.phase
+        });
+    }
+   
+ 
+    function resetGameUI() {
+        MindChangeGuess.style.display = 'none'; 
+        MainGuessBet.style.display = "block";
+        rocketContainer.style.display = 'block';
+         
+        currentMultiplier = 0.01; 
+        startPosition = { x: 100, y: 100 };
+        rocketPosition = { x: 100, y: 50 };
+
+        rocketContainer.style.left = rocketPosition.x + 'px';
+        rocketContainer.style.bottom = rocketPosition.y + 'px';
+          
+        multiplierDisplay.textContent = currentMultiplier + 'x'; 
+        MindChangeMultipliyer.textContent = currentMultiplier + 'x';
+        
+        currentBid = 0;
+        updateCurrentBidDisplay();
+        
+        document.getElementById('player-bet').value = '1.00';
+        crashPointDisplayed = false;
+        
+        players = players.map(p => ({ ...p, passed: false }));
+    } 
+
+    function updateBalanceDisplay() {
+        const balanceElement = balance;
+        if (balanceElement) {
+            
+            balanceElement.textContent = balance;
+        }
+        
+        document.querySelectorAll('.coin-btn').forEach(btn => {
+            btn.disabled = balance <= 0;
+        });
+    } 
+        
+    function updateCurrentBidDisplay() { 
+      if (currentBid > balance) {
+          currentBid = balance;
+      }
+      document.getElementById('current-bid').textContent = currentBid.toLocaleString();
+       
+      document.querySelectorAll('.coin-btn').forEach(btn => {
+          const amount = parseInt(btn.dataset.amount);
+          btn.disabled = (currentBid + amount) > balance;
+      });
+    }
+    
+         
+    async function confirmBet() { 
+        const guess = parseFloat(document.getElementById('player-bet').value);
+        if (isNaN(guess) || guess < 0.1 || guess > 99.99) {
+            showError("Please enter a valid flee condition (0.1-99.99)");
+            return;
+        }
+    
+        if(!socket || socket.readyState !== WebSocket.OPEN) { 
+            NotificationHandlerGet.showError(`Connection error. Please refresh`);
+            return;
+        }
+        if(currentBid < 20) { 
+            NotificationHandlerGet.showError(`Minimum bet is 20 coins!`);
+            return;
+        }
+        
+        if(currentBid > balance) { 
+            NotificationHandlerGet.showError(`Insufficient balance!`);
+            return;
+        }
+ 
+        socket.send(JSON.stringify({
+                action: "place_bet",
+                amount: currentBid,
+                guess: guess
+            }));
+
+        localStorage.setItem('currentBet', currentBid); 
+        const prevBalance = balance;
+        fetchAuthenticatedPlayerData(); 
+        
+        balance = prevBalance - currentBid;
+        updateBalanceDisplay(); 
+        setTimeout(async () => {
+            await fetchBalance();
+        }, 1000); 
+      
+    }
+
+    
+    function MindChangeGuessFunction() {
+        if (!socket || socket.readyState !== WebSocket.OPEN) {
+            NotificationHandlerGet.showError("Connection error. Please refresh");
+            return;
+        }
+        
+        if (gamePhase !== "flying") {
+            NotificationHandlerGet.showError("You can only cash out during flight!");
+            return;
+        } 
+
+        let MindChangeGuessEl = document.getElementById('MindChange_at_Multipliyer');
+        let rawText = MindChangeGuessEl.textContent || "0.00x";
+ 
+        let MindChangeGuess = parseFloat(rawText.replace('x', ''));
+        
+        socket.send(JSON.stringify({
+            action: "change_guess",
+            MindChangeGuess: MindChangeGuess
+        }));
+    }
+    // function handlePlayerCashout(data) { 
+    //     const player = players.find(p => p.auth_token === data.player_token);
+    //     if (!player) return; 
+    // }
+
+    function handleFallingValue(data) { 
+        let MindChangeGuessEl = document.getElementById('MindChange_at_Multipliyer');
+        let rawText = MindChangeGuessEl.textContent || "0.00x";
+ 
+        let MindChangeGuess = parseFloat(rawText.replace('x', ''));
+        data.players.forEach(player => {
+            const x = Math.floor(Math.random() * window.innerWidth * 0.8); // near rocket
+            const y = 100; 
+            showFallingValue(x, y, player, MindChangeGuess);
+        });
+    } 
+         
+    function startFlyingRocket(data) {  
+        if (data.event === 'flight') {
+        gameActive = true;
+        crashPointDisplayed = false;  
+        currentMultiplier = 0.01; 
+        
+        startPosition = { x: 100, y: 100 };
+        rocketPosition = { x: 100, y: 50 };
+
+        rocketContainer.style.left = rocketPosition.x + 'px';
+        rocketContainer.style.bottom = rocketPosition.y + 'px';
+          
+        multiplierDisplay.textContent = currentMultiplier + 'x'; 
+        MindChangeMultipliyer.textContent = currentMultiplier + 'x'; 
+          
+        if (gameLoop) cancelAnimationFrame(gameLoop);
+        gameLoop = requestAnimationFrame(updateGame); 
+        updateGame(data);   
+        updateGridLabels();
+        }
+        else if (data.event === 'crash') {
+            crashMultiplier = data.crash_point;
+            crashRocket();
+            setTimeout(() => { 
+                resetGameUI();  
+                window.location.href = '/Earn/page/crashRocket_game/';
+            }, 3000);  
+        }
+    }
+
+    function updateGame(data) {
+        if (!gameActive) return;
+        if (!data || !data.position) { 
+            return;
+        }
+  
+        currentMultiplier = data.multiplier;
+        rocketPosition = data.position;
+
+        multiplierDisplay.textContent = currentMultiplier  + 'x';
+        MindChangeMultipliyer.textContent = currentMultiplier + 'x'; 
+        
+        const maxX = gameArea.offsetWidth - rocketContainer.offsetWidth - 0.1;
+        const maxY = gameArea.offsetHeight - rocketContainer.offsetHeight - 0.1;
+ 
+        if (rocketPosition.x > maxX) rocketPosition.x = maxX;  
+        if (rocketPosition.y > maxY) rocketPosition.y = maxY; 
+
+        rocketContainer.style.left = rocketPosition.x + 'px';
+        rocketContainer.style.bottom = rocketPosition.y + 'px'; 
+         
+        if (data.event === 'crash') {
+            crashMultiplier = data.crash_point;
+            crashRocket(); 
+            crashPointDisplayed = false;  
+        }
+
+        gameLoop = requestAnimationFrame(updateGame); 
+        updateGridLabels();
+    }
+     
+    function crashRocket() {
+        gameActive = false;
+        if (gameLoop) {
+            cancelAnimationFrame(gameLoop);
+            gameLoop = null;
+        }
+        rocketContainer.style.display = 'none'; 
+        createExplosion(rocketPosition.x + 80, rocketPosition.y + 80);
+      
+         
+        if (!crashPointDisplayed) {
+            crashPointDisplayed = true;
+            const crashDisplay = document.createElement('div');
+            crashDisplay.classList.add('falling-value');
+            crashDisplay.textContent = 'CRASH: ' + crashMultiplier.toFixed(2) + 'x';
+            crashDisplay.style.left = (rocketPosition.x + 40) + 'px';
+            crashDisplay.style.top = (rocketPosition.y + 40) + 'px';
+            crashDisplay.style.color = '#ff3a30';
+            crashDisplay.style.fontWeight = 'bold';
+            crashDisplay.style.fontSize = '1.3rem';
+            gameArea.appendChild(crashDisplay);
+             
+            setTimeout(() => {
+                if (crashDisplay.parentNode) {
+                    gameArea.removeChild(crashDisplay);
+                }
+            }, 2000);
+        }
+    }
+         
+    function createExplosion(x, y) {
+        const explosion = document.createElement('div');
+        explosion.classList.add('explosion');
+        explosion.style.left = (x - 180) + 'px';
+        explosion.style.top = (y - 180) + 'px';
+        gameArea.appendChild(explosion);
+         
+        for (let i = 0; i < 25; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('explosion-particle');
+            particle.style.left = x + 'px';
+            particle.style.top = y + 'px';
+            particle.style.backgroundColor = i % 2 === 0 ? '#ff9a3d' : '#ff3a30';
+            particle.style.setProperty('--tx', (Math.random() * 30 - 10) + 'px');
+            particle.style.setProperty('--ty', (Math.random() * 30 - 10) + 'px');
+            gameArea.appendChild(particle);
+             
+            setTimeout(() => {
+                if (particle.parentNode) {
+                    gameArea.removeChild(particle);
+                }
+            }, 1000);
+        }
+         
+        setTimeout(() => {
+            if (explosion.parentNode) {
+                gameArea.removeChild(explosion);
+            }
+        }, 800);
+    }
+     
+    function showFallingValue(x, y, player, MindChangeGuess) {
+        const text = `${player.fullname} 🚀 ${player.guess_used}x` 
+        const fallingValue = document.createElement("div");
+        fallingValue.classList.add("falling-value");
+
+        const isWinner = player.guess_used == MindChangeGuess;
+        if (isWinner) {
+            fallingValue.classList.add('winner');
+        } else {
+            fallingValue.classList.add('loser');
+        }
+
+        fallingValue.style.left = `${x}px`;
+        fallingValue.style.top = `${y}px`;
+        fallingValue.innerText = text;
+
+        const gameArea = document.getElementById("game-area");
+        if (gameArea) {
+            gameArea.appendChild(fallingValue);
+            setTimeout(() => fallingValue.remove(), 2000);
+        }
+    }
+        
+    function createGridSystem() { 
+        document.querySelectorAll('.grid-line, .grid-label').forEach(el => el.remove());
+        gridLines = [];
+        
+        const gameWidth = gameArea.offsetWidth;
+        const gameHeight = gameArea.offsetHeight;
+         
+        for (let i = 0; i <= 100; i += gridInterval) { 
+            const vLine = document.createElement('div');
+            vLine.className = 'grid-line vertical';
+            vLine.style.left = `${i}%`;
+            gameArea.appendChild(vLine);
+             
+            const hLine = document.createElement('div');
+            hLine.className = 'grid-line horizontal';
+            hLine.style.bottom = `${i}%`;
+            gameArea.appendChild(hLine);
+             
+            gridLines.push({
+                x: i * gameWidth / 100,
+                y: i * gameHeight / 100
+            });
+        }
+         
+        updateGridLabels();
+    }
+  
+    function updateGridLabels() { 
+        document.querySelectorAll('.grid-label').forEach(el => el.remove());
+        
+        const gameWidth = gameArea.offsetWidth;
+        const gameHeight = gameArea.offsetHeight;
+        const multiplier = currentMultiplier; 
+        const valuePerInterval = multiplier * gridInterval / 100;
+         
+        for (let i = 0; i <= 100; i += gridInterval) { 
+            const xValue = document.createElement('div');
+            xValue.className = 'grid-label x-label';
+            xValue.textContent = (valuePerInterval * (i / gridInterval)).toFixed(2) + 'x';
+            xValue.style.left = `${i}%`;
+            gameArea.appendChild(xValue);
+            
+            const yValue = document.createElement('div');
+            yValue.className = 'grid-label y-label';
+            yValue.textContent = (valuePerInterval * (i / gridInterval)).toFixed(2) + 'x';
+            yValue.style.bottom = `${i}%`;
+            gameArea.appendChild(yValue);
+        }
+    }
+          
+    document.addEventListener('DOMContentLoaded', () => {
+        connectWebSocket();
+        fetchBalance();  
+        createGridSystem();
+    });
+
+</script>
+     
+
+
+<script> 
+    const gameArea = document.getElementById('game-area');
+    function initGame() { 
+        createStars(); 
+    }
+            
+    function createStars() { 
+        gameArea.innerHTML = ''; 
+        for (let i = 0; i < 200; i++) {
+            const star = document.createElement("div");
+            star.classList.add("stars");
+            star.style.top = (Math.random() * 100) + "vh";
+            star.style.left = (Math.random() * 100) + "vw";
+            const duration = 8 + Math.random() * 4;
+            const size = Math.random() * 2 + 1;
+            star.style.width = size + "px";
+            star.style.height = size + "px";
+            star.style.animationDuration = `${duration}s, 4s`;
+            star.style.animationDelay = `${Math.random() * 10}s, ${Math.random() * 2}s`;
+            gameArea.appendChild(star);
+        }
+        const moon = document.createElement("div");
+        moon.id = "moon";
+        gameArea.appendChild(moon);
+        const sun = document.createElement("div");
+        sun.id = "sun";
+        gameArea.appendChild(sun);
+        if (typeof rocketContainer !== "undefined") {
+            gameArea.appendChild(rocketContainer);
+        } 
+        const cycleDuration = 60000; // 60-second full cycle
+        const startTime = Date.now();
+        const stars = document.querySelectorAll('.stars');
+        function updateDayNight() {
+            const elapsed = (Date.now() - startTime) % cycleDuration;
+            const progress = elapsed / cycleDuration; // 0-1 value
+            const angle = progress * Math.PI * 2; 
+            
+            const sunPosition = (Math.sin(angle) + 1) / 2; // 0-1 range
+            const moonPosition = (Math.sin(angle + Math.PI) + 1) / 2; 
+            
+            sun.style.opacity = Math.max(0, Math.sin(angle) * 1.5);
+            sun.style.top = (10 + 50 * (1 - Math.abs(Math.sin(angle * 2)))) + "vh";
+            sun.style.left = (50 + 50 * Math.cos(angle)) + "vw";
+            
+            moon.style.opacity = Math.max(0, Math.sin(angle + Math.PI) * 1.5);
+            moon.style.top = (10 + 50 * (1 - Math.abs(Math.sin((angle + Math.PI) * 2)))) + "vh";
+            moon.style.left = (50 + 50 * Math.cos(angle + Math.PI)) + "vw";
+            
+            const starOpacity = Math.max(0, Math.min(0.8, (Math.sin(angle + Math.PI) * 0.9)));
+            stars.forEach(star => star.style.opacity = starOpacity);
+            
+            const dayColorTop = interpolateColor('#000011', '#87CEEB', sunPosition);
+            const dayColorBottom = interpolateColor('#001122', '#FFE87C', sunPosition);
+            gameArea.style.background = `linear-gradient(to bottom, ${dayColorTop}, ${dayColorBottom})`;
+            requestAnimationFrame(updateDayNight);
+        }
+        function interpolateColor(color1, color2, factor) {
+            const c1 = hexToRgb(color1);
+            const c2 = hexToRgb(color2);
+            const r = Math.round(c1.r + factor * (c2.r - c1.r));
+            const g = Math.round(c1.g + factor * (c2.g - c1.g));
+            const b = Math.round(c1.b + factor * (c2.b - c1.b));
+            return `rgb(${r},${g},${b})`;
+        }
+        function hexToRgb(hex) {
+            const r = parseInt(hex.substring(1, 3), 16);
+            const g = parseInt(hex.substring(3, 5), 16);
+            const b = parseInt(hex.substring(5, 7), 16);
+            return { r, g, b };
+        }
+        updateDayNight();
+    } 
+    initGame();
+    
+    window.addEventListener('resize', createGridSystem);
+       
+</script>
+     
+<script>
+    let currentAmountGroup = 0; 
+    const amountGroups = 3;  
+    function updateNavigation() {
+        const prevArrow = document.querySelector('.prev-arrow');
+        const nextArrow = document.querySelector('.next-arrow');
+        
+        // prevArrow.classList.toggle('disabled', currentAmountGroup === 0);
+        // nextArrow.classList.toggle('disabled', currentAmountGroup === amountGroups - 1);
+    }
+    function changeAmountPage(direction) {
+        currentAmountGroup += direction;
+         
+        if(currentAmountGroup < 0) currentAmountGroup = amountGroups - 1;
+        if(currentAmountGroup >= amountGroups) currentAmountGroup = 0;
+         
+        document.querySelectorAll('.amount-group').forEach(group => {
+            group.classList.toggle('hidden', 
+                parseInt(group.dataset.group) !== currentAmountGroup
+            );
+        });
+    }
+
+    updateNavigation(); 
+    document.querySelector(`[data-group="0"]`).classList.remove('hidden');
+</script>
+
+  {% include 'layout/HomePage/Footer_Home.html' %}
+  {% load static %}
+
+
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script> 
+  
+</body>
+</html>

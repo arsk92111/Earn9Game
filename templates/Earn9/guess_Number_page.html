@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess Number - Earn9</title>
+    {% load static %}
+    <script src="https://cdn.tailwindcss.com"></script> 
+    <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/htmx-ext-ws@2.0.2" integrity="sha384-vuKxTKv5TX/b3lLzDKP2U363sOAoRo5wSvzzc3LJsbaQRSBSS+3rKKHcOx5J8doU" crossorigin="anonymous"></script> 
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&display=swap" rel="stylesheet">
+
+
+    <link rel="stylesheet" href="{% static 'AllGame/css/cardgame.css' %}"> 
+    {% include 'layout/HomePage/Header_Home.html' %}
+
+<style> 
+            
+        /* Cyberpunk Neon Theme */
+        .game-container {
+            background: radial-gradient(circle at center, #0a0e1a 0%, #050811 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Neon Header Effect */
+        .header-glow {
+            text-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+            position: relative;
+        }
+
+        .header-glow::after {
+            content: '';
+            position: absolute;
+            inset: -5px;
+            background: linear-gradient(45deg, 
+                rgba(59,130,246,0.2) 0%,
+                rgba(99,102,241,0.1) 50%,
+                rgba(59,130,246,0.2) 100%
+            );
+            border-radius: 12px;
+            z-index: -1;
+        }  
+        /* Animated Neon Border */
+        .selected {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .selected::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(45deg, 
+                #3b82f6 0%,
+                #6366f1 50%,
+                #3b82f6 100%
+            );
+            border-radius: 22px;
+            animation: borderGlow 2s linear infinite;
+            z-index: -1;
+        }
+
+        /* Cyberpunk Timer */
+        .timer-container {
+            background: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(59,130,246,0.3);
+            box-shadow: 0 0 20px rgba(59,130,246,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .timer-container::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, 
+                transparent 0%,
+                rgba(59,130,246,0.1) 50%,
+                transparent 100%
+            );
+            animation: scanline 6s linear infinite;
+        }
+
+        #timer {
+            background: linear-gradient(45deg, #8b5cf6, #3b82f6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            text-shadow: 0 0 10px rgba(59,130,246,0.5);
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Holographic Buttons */
+        .coin-btn {
+            background: linear-gradient(145deg, #2d3748, #1f2937);
+            border: 1px solid rgba(59,130,246,0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+        }
+
+        .coin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59,130,246,0.2);
+        }
+
+        .coin-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, 
+                transparent 0%,
+                rgba(59,130,246,0.1) 50%,
+                transparent 100%
+            );
+            animation: scanline 3s linear infinite;
+        }
+
+        /* Animated Background Particles */
+        .particles {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) { 
+            #timer {
+                font-size: 0.8rem;
+            }
+
+            .timer-container span {
+                font-size: 0.875rem;
+            }
+
+            .bet-controls {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.5rem;
+            }
+
+            .coin-btn {
+                padding: 0.75rem;
+                font-size: 1rem;
+            }
+        } 
+        /* Animations */
+        @keyframes borderGlow {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+
+        @keyframes particle {
+            0% { transform: translateY(0) scale(0); opacity: 1; }
+            100% { transform: translateY(-100px) scale(1); opacity: 0; }
+        }
+
+        #result-Model{
+            flex : 'items-center justify-center';
+
+        }
+        @keyframes result-Model {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+    
+        #players-list {
+            max-height: 60vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #4a5568 #2d3748;
+        }
+
+        .player-bet {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        /* Bet Display Styles */
+        .bet-display {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(45deg, rgba(59,130,246,0.3), rgba(99,102,241,0.2));
+            padding: 8px 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(59,130,246,0.3);
+            box-shadow: 0 0 15px rgba(59,130,246,0.2);
+            z-index: 2;
+        }
+
+        .total-bet {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(17, 24, 39, 0.9);
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 0.9em;
+            border: 1px solid rgba(59,130,246,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .bet-display {
+                padding: 6px 12px;
+                font-size: 0.8em;
+            }
+            .total-bet {
+                font-size: 0.7em;
+                padding: 4px 8px;
+            }
+        } 
+        
+                /* Add these styles */
+        .nav-arrow {
+            transition: all 0.3s ease;
+            min-width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .amount-groups {
+            position: relative;
+            min-height: 40px;
+            min-width: 80px;
+        }
+
+        .amount-group {
+            position: absolute;
+            width: 100%;
+            display: flex;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.1rem;
+            transition: opacity 0.3s ease;
+        }
+
+        .amount-group.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .amount-group:not(.hidden) {
+            position: relative;
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .nav-arrow {
+                padding: 0.5rem;
+            }
+            
+        }
+
+
+        /* Responsive Adjustments */
+        @media (min-width: 768px) {
+            .bg-gray-800.p-6.rounded-xl.neon-box {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+            
+            .grid.grid-cols-2.md\:grid-cols-4 {
+                flex: 2;
+                justify-content: flex-end;
+            }
+            
+            .coin-btn {
+                min-width: 65px;
+                min-height: 40px;
+                flex: none;
+            }
+            
+            .flex.flex-col.md\:flex-row {
+                flex: 1;
+                margin-bottom: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .flex.flex-col.md\:flex-row {
+                flex-direction: column;
+                /* gap: 0.75rem; */
+            }
+            
+            #confirm-bet-btn {
+                width: fit-content;
+                font-size: small;
+            }
+            
+            .coin-btn {
+                min-width: calc(10% - 0.25rem);
+            }
+        }
+
+        /* Responsive Adjustments */
+        
+        @media (max-width: 320px) {
+
+            
+            .bg-gray-800.p-6.rounded-xl.neon-box {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+            
+            .grid.grid-cols-2.md\:grid-cols-4 {
+                flex: 2;
+                justify-content: flex-end;
+            }
+            
+            
+            .flex.flex-col.md\:flex-row {
+                flex: 1;
+                margin-bottom: 0;
+            }
+            .flex.flex-col.md\:flex-row {
+                flex-direction: column;
+                gap: 0.45rem;
+            }
+            
+            #confirm-bet-btn {
+                width: fit-content;
+                font-size: small;
+            }
+            
+            .coin-btn {
+                min-width: calc(5% - 0.15rem);
+                /* padding: 0.25rem; */
+                font-size: 0.6rem;
+            }
+        }
+   
+        @keyframes winnerFlash {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            30% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+            60% {
+                opacity: 1;
+                transform: scale(1.6);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(2);
+            }
+        }
+
+        .winner-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            font-weight: bold;
+            color: rgb(191, 163, 3);
+            text-shadow: 0 0 10px rgb(209, 180, 14);
+            animation: winnerFlash 2s ease-out forwards;
+            /* z-index: 50; */
+            pointer-events: none;
+        }
+
+
+        @keyframes winnerFlashCard {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            30% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+            60% {
+                opacity: 1;
+                transform: scale(1.6);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(2);
+            }
+        }
+
+        .winner-text-Card {
+            position: absolute;
+            top: 25%;
+            /* left: 70%; */
+            /* bottom: auto; */
+            transform: translate(-10%, -10%);
+            font-size: 2rem;
+            font-weight: bold;
+            color: rgb(191, 163, 3);
+            text-shadow: 0 0 10px rgb(209, 180, 14);
+            animation: winnerFlashCard 2s ease-out forwards; 
+            pointer-events: none;
+        }
+        .card {
+            perspective: 1000px;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .card-inner.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            /* backface-visibility: hidden; */
+        }
+
+        .card-front {
+            transform: rotateY(0deg);
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+        }
+
+        .card:hover {
+            transform: scale(1.02);
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .neon-glow {
+        filter: drop-shadow(0 0 2px #fff)
+                drop-shadow(0 0 6px #0ff)
+                drop-shadow(0 0 12px yellow);
+        transition: filter 0.4s ease;
+        }
+
+        #players-group {
+            max-width: 100%;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+     
+        
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            10% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1.1);
+            }
+        }
+
+        .animate-fade-in-out {
+            animation: fadeInOut 2s ease-in-out forwards;
+            z-index: 50;
+        }
+</style>
+ 
+<style> 
+    .neon-box {
+        background: radial-gradient(circle at top left, #0f0c29, #302b63, #24243e);
+        border-radius: 16px;
+        box-shadow: 0 0 25px rgba(0, 255, 255, 0.5), 0 0 50px rgba(255, 0, 255, 0.2);
+        color: #fff;
+    }
+    
+    .header-glow h1 {
+    text-shadow: 0 0 10px #0ff, 0 0 20px #f0f, 0 0 30px #0ff;
+    }
+    
+    #guess {
+        width: 100%;
+        padding: 12px;
+        font-size: 1rem;
+        color: #0ff;
+        background: linear-gradient(145deg, #1e1e2f, #2c2c3e);
+        border: 2px solid #0ff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px #0ff;
+        transition: box-shadow 0.3s;
+    }
+
+    #guess:focus {
+        box-shadow: 0 0 15px #00f0ff, 0 0 20px #00f0ff;
+        outline: none;
+    }
+
+    #guess::placeholder {
+        color: #88f;
+        opacity: 0.7;
+    }
+
+    /* Neon Button Styling */
+    .play-btn {
+        padding: 10px 20px;
+        margin-top: 10px;
+        font-size: 1rem;
+        color: #fff;
+        background: linear-gradient(to right, #0ff, #00f0ff);
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 0 15px #0ff;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .play-btn:hover {
+    background: linear-gradient(to right, #00f0ff, #0ff);
+    box-shadow: 0 0 25px #0ff, 0 0 50px #0ff;
+    }
+
+    #resultarea {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: stretch;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    #result1, #result3 {
+        flex: 1 1 30%;
+        min-height: 130px;
+        min-width: 95px;
+        padding: 10px;
+        border: 4px double #0ff;
+        border-radius: 15px;
+        background: linear-gradient(to top left, #ffd700, #fff8dc);
+        box-shadow: 0 0 12px rgb(49, 146, 146);
+        color: #0b0d36;
+    }
+    
+     #result2 {
+        flex: 1 1 30%;
+        min-height: 30px;
+        min-width: 95px;
+        padding: 5px;
+        border: 4px double #0ff;
+        border-radius: 15px;
+        background: linear-gradient(to top left, #ffd700, #fff8dc);
+        box-shadow: 0 0 12px rgb(49, 146, 146);
+        color: #0b0d36;
+    }
+
+    /* Responsive input layout */
+    #inputarea {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+
+    #inputarea .flex {
+        flex-direction: column;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    /* Mobile responsiveness 350 */
+    @media (max-width: 350px) {
+        .play-btn, #guess {
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        #result1,  #result3 { 
+            width: 280px;
+            min-width: 280px;
+            max-width: 280px;
+            min-height: 130px;
+            } 
+
+             #result2 { 
+            width: 280px;
+            min-width: 280px;
+            max-width: 280px;
+            min-height: 30px;
+            } 
+
+        .guess-container, .neon-box {
+            padding: 1rem;
+        }
+    
+    }
+    /* Mobile responsiveness 400 */
+    @media (max-width: 500px) {
+        .play-btn, #guess {
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        #result1, #result3 { 
+            width: 300px;
+            min-width: 300px;
+            max-width: 300px;
+            min-height: 135px;
+            } 
+
+        #result2 { 
+            width: 300px;
+            min-width: 300px;
+            max-width: 300px;
+            min-height: 35px;
+            } 
+
+        .guess-container, .neon-box {
+            padding: 1rem;
+        }
+    
+    }
+    .inside-header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .inside-header h1, .inside-header h2 {
+        font-family: 'Orbitron', sans-serif;
+        font-weight: 700;
+        color: #0ff;
+        text-shadow:
+            0 0 5px #0ff,
+            0 0 10px #0ff,
+            0 0 20px #0ff,
+            0 0 40px #0ff;
+        letter-spacing: 1px;
+    }
+
+    .inside-header h2 {
+        font-size: 1rem;
+        color: #8effff;
+        text-shadow:
+            0 0 4px #8effff,
+            0 0 8px #8effff,
+            0 0 12px #8effff;
+    }
+
+</style>
+
+</head>
+ 
+<body class="game-container"> 
+    <div class="max-w-6xl mx-auto px-1 py-1"> 
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-1"> 
+            <div class="col-span-1 lg:col-span-2">  
+                <div class="flex flex-col md:flex-row justify-between align-items justify-center items-center mb-2 gap-1 neon-border">
+                    <div class="flex items-center space-x-4 header-glow inline-block rounded-full timer-container">
+                        <h1 class="text-2xl md:text-3xl font-bold text-white">⚡ MIND GUESS 
+                            <span id="timer" class="text-2xl md:text-3xl font-bold text-white">100</span>   
+                        ⚡</h1>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-800 p-4 rounded-xl neon-box"> 
+                    <div class="inside-header">  
+                        <h1>Guess The Number</h1>
+                        <h2>Between 0 and 1000</h2>
+                    </div>
+                    <h5 id="nomoreattempts"></h5>
+                    <div id="resultarea">
+                        <section id="result1"></section>
+                            <div id="image-paths" 
+                            data-start="{% static 'GuessNumber/img/start_game.png' %}"
+                            data-low="{% static 'GuessNumber/img/lowest_guess.png' %}"
+                            data-high="{% static 'GuessNumber/img/highest_guess.png' %}"
+                            data-win="{% static 'GuessNumber/img/winner.png' %}"
+                            data-lose="{% static 'GuessNumber/img/loser.png' %}"
+                            style="display: none; ">
+                        </div>
+                        <section id="result2">
+                            <h4 id="status">Place your bet to start</h4>
+                        </section> 
+                        <section id="result3">
+                            <p id="stats">Game Stats:</p>
+                            <div id="attempt">Attempts left: <span id="attemptcounter">10</span></div>
+                            <div id="guessessofar">Your Guesses: <span id="guesscounter"></span></div> 
+                            <div id="amount_bit">Amount bet: <span id="amount_bit_Show">0</span></div>
+                        </section> 
+                    </div>
+                     
+                    <div id="inputarea" style="display:none;"> 
+                        <div class="flex">
+                            <div class="flex-col ">
+                                <input type="number" placeholder="Your Guess Here..." id="guess" min="0" max="1000">
+                            </div> 
+                            <div class="flex-col"> 
+                                <button id="submit" class="play-btn">Submit Guess</button> 
+                            </div> 
+                        </div>
+                </div>
+
+                <div id="result-announcement" class="fixed inset-0 pointer-events-none z-50"></div> 
+ 
+                <div id="bet-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                    <div class="bg-gray-800 p-4 rounded-xl neon-box"> 
+                        <div class="bg-gray-800 p-10 rounded-lg max-w-md">
+                            <h2 class="text-2xl text-white mb-4">Place Your Bet</h2>
+                            
+                            <div class="bg-gray-800 p-4 rounded-xl neon-box"> 
+                                <button onclick="confirmBet()" id="confirm-bet-btn"
+                                    class="bg-gradient-to-r mb-1 from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 px-2 py-2 rounded-lg transition-all neon-button text-xs sm:text-base">
+                                    🚀 CURRENT BET: <span id="current-bid" class="font-bold text-black-400">0</span>
+                                </button>
+                            
+                                <div class="flex items-center  gap-2 ">
+                                    <button onclick="changeAmountPage(-1)" 
+                                            class="nav-arrow prev-arrow px-3 py-2 rounded-lg bg-gray-700 hover:bg-gray-600">
+                                        &lt;&lt;
+                                    </button>
+                                    
+                                    <div class="amount-groups relative w-full max-w-xs sm:max-w-sm md:max-w-md overflow-hidden">
+                                        <div class="amount-groups-wrapper flex transition-transform duration-300 ease-in-out" style="transform: translateX(0);">
+                        
+                                            <div class="amount-group  shrink-0 w-full flex justify-center gap-2" data-group="0">
+                                                <button data-amount="20" class="coin-btn">+20</button>
+                                                <button data-amount="100" class="coin-btn">+100</button>
+                                                <button data-amount="500" class="coin-btn">+500</button> 
+                                            </div>
+                                            
+                                            <div class="amount-group  shrink-0 w-full flex justify-center gap-2" data-group="1">
+                                                <button data-amount="1000" class="coin-btn">1K</button>
+                                                <button data-amount="5000" class="coin-btn">5k</button>
+                                                <button data-amount="10000" class="coin-btn">10K</button> 
+                                            </div>
+                                            
+                                            <div class="amount-group  shrink-0 w-full flex justify-center gap-2" data-group="2">
+                                                <button data-amount="20000" class="coin-btn">+20K</button>
+                                                <button data-amount="50000" class="coin-btn">+50K</button>
+                                                <button data-amount="100000" class="coin-btn">+100K</button> 
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <button onclick="changeAmountPage(1)" 
+                                            class="nav-arrow next-arrow px-3 py-2 rounded-lg bg-gray-700 hover:bg-gray-600">
+                                        &gt;&gt;
+                                    </button>
+                                </div>
+                            </div>
+                  
+                        </div> 
+                    </div> 
+                </div>
+            </div> 
+        </div>
+    </div>
+
+ 
+<script>
+       
+    let socket;
+    let balance = 0;
+    let currentBid = 0;
+    let selectedSide = null;
+    let currentRoundId = null;
+    let timerInterval; 
+    let isConnecting = false;
+    let reconnectAttempts = 0;
+    const bet_modal = document.getElementById('bet-modal');
+    let playerBalance = 0;
+    let gameActive = false;  
+    const imagePaths = {
+        start: document.getElementById('image-paths').getAttribute('data-start'),
+        low: document.getElementById('image-paths').getAttribute('data-low'),
+        high: document.getElementById('image-paths').getAttribute('data-high'),
+        win: document.getElementById('image-paths').getAttribute('data-win'),
+        lose: document.getElementById('image-paths').getAttribute('data-lose')
+    };
+
+
+ 
+    async function fetchBalance() {
+        try {
+            const response = await fetch('/Earn/api/my_profile/', {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem("access_token")}`
+                }
+            });
+            const data = await response.json();
+            balance = data?.data?.coins;
+            updateBalanceDisplay();
+        } catch (error) {
+            console.error('Balance fetch failed:', error);
+        }
+    }
+
+    fetchBalance();
+
+    function connectWebSocket() {
+        if (isConnecting) return;
+        
+        isConnecting = true;
+        socket = new WebSocket(
+            (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + 
+            window.location.host + '/ws/guess_number_game/guessNumber/'
+        );
+
+        socket.onopen = () => {
+            isConnecting = false;
+            reconnectAttempts = 0;
+            // console.log('✅ WebSocket connected'); 
+            NotificationHandlerGet.showSuccess(`✅ WebSocket connected`); 
+            setTimeout(() => sendSocket({ action: 'get_initial_state' }), 500);
+        };
+
+        socket.onclose = (e) => {
+            isConnecting = false;
+            console.error('WebSocket disconnected. Retrying...');
+            reconnectAttempts++;
+            const delay = Math.min(3000 * reconnectAttempts, 3000);
+            setTimeout(connectWebSocket, delay);
+        };
+
+        socket.onerror = (e) => { 
+            NotificationHandlerGet.showError(`WebSocket error: ${e}`); 
+            socket.close();
+        };
+
+        socket.onmessage = (e) => {
+            try {
+                const data = JSON.parse(e.data);
+                handleSocketMessage(data);
+            } catch (error) {
+                console.error("Message parsing error:", error);
+                NotificationHandlerGet.showError(`Message parsing error: ${error}`); 
+            }
+        };
+    }
+    
+    function setResultImage(type) {
+        const resultSection = document.getElementById('result1');
+        if (type && imagePaths[type]) {
+            resultSection.innerHTML = `<img src="${imagePaths[type]}" alt="${type}"  width="180px"  min-width="180px"  max-width="180px" min-height="80px"  height="80px" max-height="80px" >`;
+        } else {
+            resultSection.innerHTML = '';
+        }
+    }
+  
+    function handleSocketMessage(data) {
+        switch(data.type) {
+            case 'game_state':
+                if (data.state.status === 'active' || data.state.status === 'bedding') {
+                    setResultImage('start');
+                }
+                updateGameUI(data.state);
+                break;
+            case 'timer':
+                document.getElementById('timer').textContent = data.time_remaining;
+                break;
+            case 'guess_result': 
+                    document.getElementById('status').textContent = data.result;
+                    document.getElementById('attemptcounter').textContent = data.state.attempts_left;
+                    document.getElementById('guesscounter').textContent = data.state.guesses.join(', ');
+                    if (data.image_type) {
+                        setResultImage(data.image_type);
+                    }
+                break;
+            case 'game_result':
+                if (data.image_type) {
+                    setResultImage(data.image_type);
+                }
+                handleGameResult(data);
+                break;
+            case 'game_update':
+                updateGameUI(data.state);
+                break;
+            case 'error':
+                alert(`Error: ${data.message}`);
+                break;
+        }
+    }
+ 
+    function updateGameUI(state) {
+        document.getElementById('amount_bit_Show').textContent = state.bet_amount || 0;
+        document.getElementById('current-bid').textContent = state.bet_amount || 0;
+        document.getElementById('attemptcounter').textContent = state.attempts_left || 10;
+        
+        if (state.guesses && state.guesses.length > 0) {
+            document.getElementById('guesscounter').textContent = state.guesses.join(', ');
+        }
+        
+        switch(state.status) {
+            case 'bedding': 
+                setResultImage('start');
+                bet_modal.style.display = 'flex';
+                document.getElementById('inputarea').style.display = 'none';
+                document.getElementById('submit').disabled = true;
+                break;
+            case 'active':
+                gameActive = true;
+                bet_modal.style.display = 'none';
+                document.getElementById('inputarea').style.display = 'block';
+                document.getElementById('submit').disabled = false;
+                document.getElementById('status').textContent = 'Game started! Guess a number';
+                break;
+            case 'result': 
+                if (state.game_result) {
+                    handleGameResult({
+                        result: state.game_result,
+                        winnings: state.winning_amount,
+                        target_number: state.target_number
+                    });
+                }
+                gameActive = false;
+                document.getElementById('inputarea').style.display = 'none';
+                bet_modal.style.display = 'none';
+                break;
+            case 'expired':  
+                if (state.game_result) {
+                    handleGameResult({
+                        result: state.game_result,
+                        winnings: state.winning_amount,
+                        target_number: state.target_number
+                    });
+                } else {
+                    document.getElementById('status').textContent = 'Game over!';
+                }
+                gameActive = false;
+                document.getElementById('inputarea').style.display = 'none';
+                bet_modal.style.display = 'none';
+                break;
+        }
+    } 
+    function handleGameResult(data) {
+        let resultMessage;
+        showVictoryModal(data) 
+        bet_modal.style.display = 'none';
+        fetchBalance();
+    }
+    
+    function showVictoryModal(data) {
+        let resultMessage;
+        const announcementContainer = document.getElementById("result-announcement");
+        announcementContainer.innerHTML = "";
+        
+        const resultDiv = document.createElement('div');
+        resultDiv.className = 'absolute text-center text-white font-bold animate-fade-in-out text-4xl p-4';
+        resultDiv.style.top = "40%";
+        resultDiv.style.left = "50%";
+        resultDiv.style.transform = "translate(-50%, -50%)";
+        
+        const userCurrent = "{{ player.auth_token }}"; 
+        
+        if (data.result === 'win') { 
+            resultMessage = `🎉 You won! The number was ${data.target_number} !`;
+            resultDiv.innerHTML = `
+                <div class="text-green-400 drop-shadow-lg">
+                    🎉 YOU WIN! 🎉 
+                </div> 
+                <div class="text-yellow-300 text-2xl mt-2">
+                    ${data.winnings} 🪙 
+                </div>
+            `;
+        }
+        else {
+            resultMessage = `😢 You lost! The number was ${data.target_number} !`;
+            resultDiv.innerHTML = `
+                <div class="text-red-500 drop-shadow-lg">
+                    💥 YOU LOSE 💥 
+                </div> 
+                <div class="text-yellow-300 text-2xl mt-2">
+                    ${data.lossing_amount} 🪙 
+                </div>
+            `;
+        } 
+        
+        document.getElementById('status').textContent = resultMessage;
+        announcementContainer.appendChild(resultDiv);
+        setTimeout(() => { 
+            announcementContainer.innerHTML = "";
+            window.location.href = '/Earn/page/GuessNumber_page/';
+        }, 3000); 
+    }
+    
+    document.getElementById('submit').addEventListener('click', () => {
+        const guessInput = document.getElementById('guess');
+        const guess = guessInput.value.trim();
+        
+        if (!guess) { 
+            NotificationHandlerGet.showError(`Please enter a number`); 
+            return;
+        }
+        
+        socket.send(JSON.stringify({
+            action: 'submit_guess',
+            guess: parseInt(guess)
+        }));
+        
+        guessInput.value = '';
+    }); 
+
+    document.addEventListener('DOMContentLoaded', () => {
+        connectWebSocket();
+         
+        const balanceElement = balance;
+        if (balanceElement) {
+            balance = parseInt(balanceElement.textContent) || 0;
+            updateBalanceDisplay();
+        }
+        
+        document.querySelectorAll('.coin-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const amount = parseInt(btn.dataset.amount);
+                if (currentBid + amount > balance) { 
+                    NotificationHandlerGet.showError(`Insufficient balance!`);
+                    return;
+                }
+                currentBid += amount;
+                updateCurrentBidDisplay();
+            });
+        });
+    });
+    
+    function updateBalanceDisplay() {
+        const balanceElement = balance;
+        if (balanceElement) {
+            
+            balanceElement.textContent = balance;
+        }
+        
+        document.querySelectorAll('.coin-btn').forEach(btn => {
+            btn.disabled = balance <= 0;
+        });
+    }
+ 
+    function sendSocket(data) {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            try {
+                socket.send(JSON.stringify(data));
+            } catch (error) {
+                console.error("Error sending WebSocket message:", error);
+                NotificationHandlerGet.showError(`Error sending WebSocket message:${error}`);
+            }
+        } else { 
+            NotificationHandlerGet.showError(`WebSocket not connected. Message not sent :${data}`);
+        }
+    }
+     
+    function handleError(data) {
+        const errorMap = {
+            "Failed to initialize game": "Game is restarting...",
+            "Invalid round": "New round starting...",
+            "Insufficient balance": "Add coins to play"
+        };
+        
+        const message = errorMap[data.message] || "Connection issue. Reconnecting...";
+        NotificationHandlerGet.showError(` ${data.message.includes("Failed") ? 'warning' : 'error'}:${message}`);
+    } 
+
+    function validateBid() {
+        if (!currentRoundId) {
+            NotificationHandlerGet.showError('No active round!');
+            return false;
+        }
+        if (currentBid < 1) {
+            NotificationHandlerGet.showError('Please select bid amount!');
+            return false;
+        } 
+        return true;
+    } 
+ 
+    async function confirmBet() {
+        if (currentBid < 1) { 
+            NotificationHandlerGet.showError(`Please select a bid amount!!`);
+            return;
+        }
+
+        fetchAuthenticatedPlayerData(); 
+        try {
+            const prevBalance = balance;
+            
+            socket.send(JSON.stringify({
+                action: 'place_bid',
+                amount: currentBid
+            }));
+            
+            
+            balance = prevBalance - currentBid;
+            updateBalanceDisplay();
+            fetchAuthenticatedPlayerData(); 
+            setTimeout(async () => {
+                await fetchBalance();
+            }, 1000);
+
+        } catch (error) { 
+            balance = prevBalance;
+            fetchAuthenticatedPlayerData(); 
+            updateBalanceDisplay(); 
+            NotificationHandlerGet.showError(`Bid failed: ${error.message}`);
+        }
+ 
+        resetBidSelection(); 
+        fetchAuthenticatedPlayerData(); 
+    }
+
+  
+    function resetBidSelection() {
+        currentBid = 0;
+        selectedSide = null;
+        updateCurrentBidDisplay(); 
+        document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+    }
+
+    function updateCurrentBidDisplay() { 
+        if (currentBid > balance) {
+            currentBid = balance;
+        }
+        document.getElementById('current-bid').textContent = currentBid.toLocaleString();
+         
+        document.querySelectorAll('.coin-btn').forEach(btn => {
+            const amount = parseInt(btn.dataset.amount);
+            btn.disabled = (currentBid + amount) > balance;
+        });
+    }
+ 
+    
+    function initializeCoinButtons() {
+        document.querySelectorAll('.coin-btn').forEach(btn => {
+            btn.replaceWith(btn.cloneNode(true));
+        });
+
+        document.querySelectorAll('.coin-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const amount = parseInt(btn.dataset.amount);
+                if (currentBid + amount > balance) {  
+                    NotificationHandlerGet.showError(`Insufficient balance!`);
+                    return;
+                }
+                currentBid += amount;
+                updateCurrentBidDisplay();
+            });
+        });
+    }
+ 
+    document.addEventListener('DOMContentLoaded', () => {
+        connectWebSocket();
+        fetchBalance();
+        fetchAuthenticatedPlayerData();
+        initializeCoinButtons(); // Initialize buttons once
+    });
+
+</script>
+ 
+<script>
+    let currentAmountGroup = 0; 
+    const amountGroups = 3;  
+    function updateNavigation() {
+        const prevArrow = document.querySelector('.prev-arrow');
+        const nextArrow = document.querySelector('.next-arrow');
+        
+        prevArrow.classList.toggle('disabled', currentAmountGroup === 0);
+        nextArrow.classList.toggle('disabled', currentAmountGroup === amountGroups - 1);
+    }
+    function changeAmountPage(direction) {
+        currentAmountGroup += direction;
+         
+        if(currentAmountGroup < 0) currentAmountGroup = amountGroups - 1;
+        if(currentAmountGroup >= amountGroups) currentAmountGroup = 0;
+         
+        document.querySelectorAll('.amount-group').forEach(group => {
+            group.classList.toggle('hidden', 
+                parseInt(group.dataset.group) !== currentAmountGroup
+            );
+        });
+    }
+
+    updateNavigation(); 
+    document.querySelector(`[data-group="0"]`).classList.remove('hidden');
+</script>
+
+
+    
+{% include 'layout/HomePage/Footer_Home.html' %}
+{% load static %}
+
+</body>
+</html>
+ 

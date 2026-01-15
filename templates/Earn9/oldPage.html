@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title> Spin Wheel - Earn9</title> 
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+    {% load static %}    
+    {% include 'layout/HomePage/Header_Home.html' %}
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style> 
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            /* min-height: 100vh; */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            color: white;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            border-radius: 25px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            text-align: center;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            z-index: -1;
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(0, 200, 255, 0.8);
+            background: linear-gradient(45deg, #ff00cc, #3333ff, #00ccff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.85;
+            margin-bottom: 25px;
+            text-shadow: 0 0 10px rgba(0, 200, 255, 0.7);
+            font-weight: 300;
+        }
+        
+        .game-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+        }
+        
+        .wheel-section {
+            flex: 1;
+            min-width: 270px;
+            position: relative;
+        }
+        
+        .wheel-container {
+            position: relative;
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+            filter: drop-shadow(0 0 20px rgba(0, 200, 255, 0.5));
+        }
+        
+        .wheel {
+            position: relative;
+            overflow: hidden;
+            transition: transform 5s cubic-bezier(0.17, 0.67, 0.14, 0.93);
+            width: 100%;
+            height: 0;
+            padding-bottom: 100%;
+            border-radius: 50%; 
+            background: #111;
+            box-shadow: 
+                inset 0 0 50px rgba(0, 0, 0, 0.8),
+                0 0 0 8px #222,
+                0 0 0 16px #333,
+                0 0 0 24px #444,
+                0 0 0 32px #555,
+                0 0 40px rgba(0, 200, 255, 0.7);
+        }
+        
+        .wheel-item {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: bottom right;
+            left: 0;
+            top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+        }
+        
+        .wheel-item-content {
+            position: absolute;
+            top: 100px;
+            width: 170px;
+            height: 170px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transform: rotate(70deg) translate(-85px, -85px);
+            transform-origin: center;
+            text-align: center;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
+            color: white;
+            z-index: 10;
+        }
+        
+        .wheel-item i {
+            font-size: 28px;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 3px rgba(0,0,0,0.8));
+        }
+        
+        .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20%;
+            height: 20%;
+            background: radial-gradient(circle, #ffd700 0%, #daa520 70%, #b8860b 100%);
+            border-radius: 50%;
+            z-index: 5;
+            box-shadow: 
+                inset 0 0 20px rgba(255, 215, 0, 0.8),
+                0 0 0 8px #daa520,
+                0 0 20px rgba(255, 215, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8b4513;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-shadow: 0 1px 1px rgba(255,255,255,0.5);
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .pointer {
+            position: absolute;
+            top: -30px;
+            left: 39.6%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 70px;
+            background: linear-gradient(145deg, #ff0000, #cc0000);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            z-index: 10;
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 8px;
+            color: white;
+            font-size: 1.5rem;
+            filter: drop-shadow(0 0 5px rgba(255,0,0,0.8)); 
+            rotate: 180deg;
+        }
+
+        
+        .pointer::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 5px;
+            width: 40px;
+            height: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 50%;
+            z-index: -1;
+        }
+        
+        .spin-btn {
+            margin: 40px auto 0;
+            padding: 18px 50px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff00cc, #3333ff);
+            border: none;
+            border-radius: 60px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 10px 25px rgba(0, 0, 0, 0.4),
+                0 0 15px rgba(102, 51, 255, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            position: relative;
+            overflow: hidden;
+            z-index: 2;
+        }
+        
+        .spin-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: rotate(45deg);
+            z-index: -1;
+            transition: all 0.5s ease;
+        }
+        
+        .spin-btn:hover {
+            transform: translateY(-7px);
+            box-shadow: 
+                0 15px 30px rgba(0, 0, 0, 0.5),
+                0 0 25px rgba(102, 51, 255, 0.9);
+        }
+        
+        .spin-btn:hover::before {
+            transform: rotate(45deg) translateX(100%);
+        }
+        
+        .spin-btn:active {
+            transform: translateY(0);
+        }
+        
+        .spin-btn:disabled {
+            background: linear-gradient(45deg, #555, #777);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .spin-btn:disabled:hover::before {
+            transform: rotate(45deg) translateX(-100%);
+        }
+        
+        .controls-section {
+            flex: 1;
+            min-width: 270px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .prizes {
+            background: rgba(10, 15, 30, 0.6);
+            border-radius: 20px;
+            padding: 10px;
+            text-align: left;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .history {
+            width: 100%;
+            background: rgba(10, 15, 30, 0.6);
+            border-radius: 20px;
+            padding: 10px;
+            text-align: left;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .prizes::before, .history::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff00cc, #3333ff, #00ccff);
+        }
+        
+        .section-title {
+            font-size: 1.7rem;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid rgba(100, 150, 255, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #4fc3f7;
+            text-shadow: 0 0 10px rgba(79, 195, 247, 0.5);
+        }
+        
+        .prize-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 18px;
+        }
+        
+        .prize-item {
+            background: rgba(30, 40, 80, 0.7);
+            padding: 15px;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .prize-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            z-index: -1;
+            transform: translateX(-100%);
+            transition: transform 0.5s ease;
+        }
+        
+        .prize-item:hover {
+            transform: translateY(-7px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .prize-item:hover::before {
+            transform: translateX(100%);
+        }
+        
+        .prize-item i {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+        
+        .history-list {
+            max-height: 230px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .history-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .history-list::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+        
+        .history-list::-webkit-scrollbar-thumb {
+            background: linear-gradient(#ff00cc, #3333ff);
+            border-radius: 10px;
+        }
+        
+        .history-item {
+            padding: 15px;
+            margin-bottom: 12px;
+            background: rgba(20, 30, 60, 0.5);
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            animation: fadeIn 0.5s ease;
+            border: 1px solid rgba(100, 150, 255, 0.1);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-section { 
+            width: 100%;
+            padding: 10px;
+            background: rgba(10, 15, 30, 0.6);
+            border-radius: 20px;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .result-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #00ccff, #ff00cc, #3333ff);
+        }
+        
+        .result-text {
+            font-size: 2.2rem;
+            font-weight: bold;
+            text-align: center;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(45deg, #ffd700, #ffcc00, #ffd700);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+            padding: 0 20px;
+        }
+        
+        .win-animation {
+            animation: winPulse 1s infinite;
+        }
+        
+        @keyframes winPulse {
+            0% { transform: scale(1); text-shadow: 0 0 5px rgba(255,215,0,0.5); }
+            50% { transform: scale(1.1); text-shadow: 0 0 30px rgba(255,215,0,0.8); }
+            100% { transform: scale(1); text-shadow: 0 0 5px rgba(255,215,0,0.5); }
+        }
+        
+        .coins {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        
+        .coins i {
+            color: #ffd700;
+            filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.8));
+        }
+        
+        .counter {
+            font-size: 1.5rem;
+            opacity: 0.9;
+            color: #4fc3f7;
+            text-shadow: 0 0 10px rgba(79, 195, 247, 0.3);
+        }
+        
+        .confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 200, 255, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(0, 200, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 200, 255, 0); }
+        }
+        
+        .container-bottom {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            margin-top: 40px;
+            max-width: 1100px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            border-radius: 25px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            text-align: center;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        
+        .pointer-unChange { 
+            position: absolute;  
+            top: 48%;
+            left: 49%;
+            transition: transform 5s cubic-bezier(0.17, 0.67, 0.14, 0.93); 
+            width: 15px;
+            height: 15px; 
+            padding-bottom: 8px; 
+            font-size: 1.3rem;  
+            border-radius: 100%; 
+            z-index: 100 !important;  
+        } 
+        .pointer-0 {  
+            top: -234px;
+            left: -688%;
+            background: linear-gradient(145deg, #ffe41a, #ccbb00);   
+            box-shadow:  0 0 10px rgba(255, 217, 0, 0.7), 0 0 20px rgba(255, 247, 0, 0.5), 0 0 30px rgba(255, 251, 0, 0.3); 
+            filter: drop-shadow(0 0 5px rgba(255, 247, 0, 0.8));  
+        } 
+        
+        .pointer-1 { 
+            top: -236px;
+            left: 615%; 
+            background: linear-gradient(145deg, #f39c12, #e67e22);  
+            box-shadow:  0 0 10px rgba(255, 204, 0, 0.7), 0 0 20px rgba(255, 196, 0, 0.5), 0 0 30px rgba(255, 174, 0, 0.3); 
+            filter: drop-shadow(0 0 5px rgba(255, 191, 0, 0.8));  
+        } 
+
+        .pointer-2 { 
+            top: -99px;
+            left: 1552%;
+            background: linear-gradient(145deg, #e67e22, #d35400);  
+            box-shadow:  0 0 10px rgba(255, 136, 0, 0.7), 0 0 20px rgba(255, 128, 0, 0.5), 0 0 30px rgba(255, 136, 0, 0.3); 
+            filter: drop-shadow(0 0 5px rgba(255, 136, 0, 0.8));  
+        } 
+        
+        .pointer-3 { 
+            top: 98px;
+            left: 1564%;  
+            background: linear-gradient(145deg,  #22e624, #4ed300);  
+            box-shadow: 0 0 10px rgb(56 255 0 / 70%), 0 0 20px rgb(28 255 0 / 50%), 0 0 30px rgb(17 255 0 / 30%); 
+            filter: drop-shadow(0 0 5px rgba(47, 255, 0, 0.8));  
+        } 
+
+        .pointer-4 { 
+            position: absolute;
+            top: 238px;
+            left: 659%;
+            background: linear-gradient(145deg, #e6b522, #d38e00);  
+            box-shadow: 0 0 10px rgb(255 172 0 / 70%), 0 0 20px rgb(255 180 0 / 50%), 0 0 30px rgba(255, 136, 0, 0.3); 
+            filter: drop-shadow(0 0 5px rgba(255, 213, 0, 0.8));  
+        } 
+        
+        
+        .pointer-5 { 
+            top: 235px;
+            left: -765%;
+            background: linear-gradient(145deg,  #bcbcb9, #9c9b9a);  
+            box-shadow: 0 0 10px rgb(186 184 180 / 70%), 0 0 20px rgb(170 169 166 / 50%), 0 0 30px #d1d5db; 
+            filter: drop-shadow(0 0 5px rgba(222, 221, 219, 0.8));  
+        } 
+        
+        .pointer-6 { 
+            position: absolute;
+            top: 100px;
+            left: -1625%;
+            background: linear-gradient(145deg, #228de6, #0062d3);  
+            box-shadow:0 0 10px rgb(0 166 255 / 70%), 0 0 20px rgb(0 118 255 / 50%), 0 0 30px rgb(0 131 255 / 30%); 
+            filter: drop-shadow(0 0 5px rgba(0, 123, 255, 0.8));  
+        } 
+ 
+        .pointer-7 { 
+            top: -100px;
+            left: -1598%; 
+            background: linear-gradient(145deg, #9b59b6, #8e44ad);  
+            box-shadow: 0 0 10px rgb(125 0 255 / 70%), 0 0 20px rgb(141 0 255 / 50%), 0 0 30px rgb(151 0 255 / 30%); 
+            filter: drop-shadow(0 0 5px rgba(125, 0, 255, 0.8));  
+        } 
+         
+        /* Cyberpunk Timer */
+        .timer-container {
+            background: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(59,130,246,0.3);
+            box-shadow: 0 0 20px rgba(59,130,246,0.2); 
+            align-items: center !important;
+            align-content: center !important; 
+            z-index: 100 !important;
+        }
+       
+        #timer {
+            background: linear-gradient(45deg, #8b5cf6, #3b82f6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            text-shadow: 0 0 10px rgba(59,130,246,0.5);
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 660px) { 
+                #timer {
+                    font-size: 0.8rem;
+                }
+                #timer_title {
+                    font-size: 1rem;
+                }
+                .timer-container span {
+                    font-size: 0.875rem; 
+                }
+
+            }
+        /* Mobile Responsive Styles */
+        @media  (min-width: 410px) and   (max-width: 575px) {
+            .wheel-section{
+                margin-top: 25px; 
+                min-width: 320px;
+            }
+            body {
+                padding: 2px;
+                min-height: auto; 
+                margin-top: 62px;
+            }
+            .result-section {
+                gap: 2px;
+            }
+            .game-container{
+                gap: 25px;
+            }
+            .container {
+                padding: 5px;
+                border-radius: 18px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .subtitle {
+                font-size: 0.95rem;
+            }
+            
+            .wheel-container {
+                max-width: 250px;
+            }
+            
+            .wheel-item-content {
+                top: 65px;
+                width: 110px;
+                height: 100px;
+                transform: rotate(66deg) translate(-55px, -55px);
+                font-size: 0.6rem;
+            }
+            
+            .wheel-item i {
+                font-size: 18px;
+            }
+            
+            .wheel-center {
+                font-size: 0.85rem;
+            }
+            
+            .pointer {
+                top: -25px;
+                left: 36%;
+                width: 35px;
+                height: 45px;
+                font-size: 1rem;
+            }
+            
+            .spin-btn {
+                padding: 12px 30px;
+                font-size: 1.1rem;
+                margin-top: 25px;
+            }
+            
+            .section-title {
+                font-size: 1rem; 
+                margin-bottom: 5px;
+            }
+            .prizes {
+                margin-top: 15px;
+                padding: 2px;
+            }
+            .prize-list {
+                grid-template-columns: repeat(3, minmax(75px, 1fr));
+                gap: 2px;
+            }
+            
+            .prize-item { 
+                display: flex;
+                flex-direction: column; 
+                gap: 1px;   
+                padding: 5px;
+                font-size: 1rem;
+            } 
+            
+            .prize-item i {
+                font-size: 18px;
+            }
+            
+            .result-text {
+                font-size: 1.2rem;
+                min-height: 50px;
+            }
+            
+            .coins {
+                font-size: 1rem;
+            }
+            
+            .counter {
+                font-size: 1.5rem;
+            }
+            
+            .container-bottom {
+                padding: 2px;
+                margin-top: 8px;
+                display: block;
+            }
+            
+            .history-item {
+                padding: 8px;
+                font-size: 1.1rem;
+                flex-direction: row;
+                gap: 5px;
+                align-items: flex-start;
+            }
+            
+            .history-item span {
+                display: flex;
+                align-items: center;
+                gap: 2px;
+            }
+
+            
+            
+            .pointer-unChange {  
+                top: 48%;
+                left: 49%;
+            }
+            .pointer-0 {   
+                top: -130px;
+                left: -418%;
+            }
+            .pointer-1 {  
+                top: -131px;
+                left: 346%;
+            }
+            .pointer-2 {  
+                top: -58px;
+                left: 844%;
+
+            }
+            .pointer-3 {  
+                top: 51px;
+                left: 850%;
+            }
+            .pointer-4 {  
+                top: 127px;
+                left: 359%;
+            }
+            .pointer-5 {  
+                top: 126px;
+                left: -430%;
+            }
+            .pointer-6 { 
+                top: 55px;
+                left: -906%; 
+            }
+            .pointer-7 {  
+                top: -52px;
+                left: -915%;
+            }
+        }
+        
+        @media (min-width: 351px) and (max-width: 400px) { 
+            .wheel-section{
+                margin-top: 25px; 
+                min-width: 320px;
+            }
+            body {
+                padding: 2px;
+                min-height: auto; 
+                margin-top: 62px;
+            }
+            .result-section {
+                gap: 2px;
+            }
+            .game-container{
+                gap: 25px;
+            }
+            .container {
+                padding: 5px;
+                border-radius: 18px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .subtitle {
+                font-size: 0.95rem;
+            }
+            
+            .wheel-container {
+                max-width: 250px;
+            }
+            
+            .wheel-item-content {
+                top: 65px;
+                width: 110px;
+                height: 100px;
+                transform: rotate(66deg) translate(-55px, -55px);
+                font-size: 0.6rem;
+            }
+            
+            .wheel-item i {
+                font-size: 18px;
+            }
+            
+            .wheel-center {
+                font-size: 0.85rem;
+            }
+            
+            .pointer {
+                top: -25px;
+                left: 36%;
+                width: 35px;
+                height: 45px;
+                font-size: 1rem;
+            }
+            
+            .spin-btn {
+                padding: 12px 30px;
+                font-size: 1.1rem;
+                margin-top: 25px;
+            }
+            
+            .section-title {
+                font-size: 1rem; 
+                margin-bottom: 5px;
+            }
+            .prizes {
+                margin-top: 15px;
+                padding: 2px;
+            }
+            .prize-list {
+                grid-template-columns: repeat(3, minmax(75px, 1fr));
+                gap: 2px;
+            }
+            
+            .prize-item { 
+                display: flex;
+                flex-direction: column; 
+                gap: 1px;   
+                padding: 5px;
+                font-size: 1rem;
+            } 
+            
+            .prize-item i {
+                font-size: 18px;
+            }
+            
+            .result-text {
+                font-size: 1.2rem;
+                min-height: 50px;
+            }
+            
+            .coins {
+                font-size: 1rem;
+            }
+            
+            .counter {
+                font-size: 1.5rem;
+            }
+            
+            .container-bottom {
+                padding: 2px;
+                margin-top: 8px;
+                display: block;
+            }
+            
+            .history-item {
+                padding: 8px;
+                font-size: 1.1rem;
+                flex-direction: row;
+                gap: 5px;
+                align-items: flex-start;
+            }
+            
+            .history-item span {
+                display: flex;
+                align-items: center;
+                gap: 2px;
+            }
+
+            
+            
+            .pointer-unChange {  
+                top: 48%;
+                left: 49%;
+            }
+            .pointer-0 {   
+                top: -130px;
+                left: -418%;
+            }
+            .pointer-1 {  
+                top: -131px;
+                left: 346%;
+            }
+            .pointer-2 {  
+                top: -58px;
+                left: 844%;
+
+            }
+            .pointer-3 {  
+                top: 51px;
+                left: 850%;
+            }
+            .pointer-4 {  
+                top: 127px;
+                left: 359%;
+            }
+            .pointer-5 {  
+                top: 126px;
+                left: -430%;
+            }
+            .pointer-6 { 
+                top: 55px;
+                left: -906%; 
+            }
+            .pointer-7 {  
+                top: -52px;
+                left: -915%;
+            }
+        }
+        
+        @media (max-width: 350px) { 
+            .wheel-section{
+                margin-top: 25px;
+
+            }
+            body {
+                padding: 2px;
+                min-height: auto; 
+                margin-top: 62px;
+            }
+            .result-section {
+                gap: 2px;
+            }
+            .game-container{
+                gap: 25px;
+            }
+            .container {
+                padding: 5px;
+                border-radius: 18px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .subtitle {
+                font-size: 0.95rem;
+            }
+            
+            .wheel-container {
+                max-width: 220px;
+            }
+            
+            .wheel-item-content {
+                top: 65px;
+                width: 110px;
+                height: 100px;
+                transform: rotate(66deg) translate(-55px, -55px);
+                font-size: 0.6rem;
+            }
+            
+            .wheel-item i {
+                font-size: 18px;
+            }
+            
+            .wheel-center {
+                font-size: 0.85rem;
+            }
+            
+            .pointer {
+                top: -25px;
+                left: 34%;
+                width: 35px;
+                height: 45px;
+                font-size: 1rem;
+            }
+            
+            .spin-btn {
+                padding: 12px 30px;
+                font-size: 1.1rem;
+                margin-top: 25px;
+            }
+            
+            .section-title {
+                font-size: 1rem; 
+            }
+            .prizes {
+                margin-top: 15px;
+                padding: 2px;
+            }
+            .prize-list {
+                grid-template-columns: repeat(3, minmax(75px, 1fr));
+                gap: 2px;
+            }
+            
+            .prize-item { 
+                display: flex;
+                flex-direction: column; 
+                gap: 0;   
+                
+                padding: 2px;
+                font-size: 0.7rem;
+            } 
+            
+            .prize-item i {
+                font-size: 14px;
+            }
+            
+            .result-text {
+                font-size: 1rem;
+            }
+            
+            .coins {
+                font-size: 0.8rem;
+            }
+            
+            .counter {
+                font-size: 0.8rem;
+            }
+            
+            .container-bottom {
+                padding: 2px;
+                margin-top: 8px;
+                display: block;
+            }
+            
+            .history-item {
+                padding: 5px;
+                font-size: 0.8rem;
+                flex-direction: row;
+                gap: 2px;
+                align-items: flex-start;
+            }
+            
+            .history-item span {
+                display: flex;
+                align-items: center;
+                gap: 2px;
+            } 
+        
+
+            .pointer-unChange {  
+                top: 48%;
+                left: 49%;
+            }
+            .pointer-0 {  
+                top: -120px;
+                left: -362%;
+            }
+            .pointer-1 {  
+                top: -120px;
+                left: 275%;
+            }
+            .pointer-2 {  
+                top: -50px;
+                left: 750%;
+            }
+            .pointer-3 {  
+                top: 48px;
+                left: 740%;
+            }
+            .pointer-4 {  
+                top: 115px;
+                left: 265%;
+            }
+            .pointer-5 {  
+                top: 113px;
+                left: -362%;
+            }
+            .pointer-6 {
+                top: 40px;
+                left: -830%;
+            }
+            .pointer-7 { 
+                top: -53px;
+                left: -818%;
+            }
+        }
+
+
+    </style>
+
+</head>
+<body>
+    <div class="container">  
+        <div class="flex flex-col justify-between align-items mb-2 justify-center items-center gap-1 neon-border">
+            <div class="flex items-center space-x-4 header-glow inline-block rounded-full timer-container">
+                <h1 id="timer_title" class="text-2xl md:text-3xl font-bold text-white">⚡ SPIN WHEEL  
+                    <span id="timer" class="text-2xl md:text-3xl font-bold text-white">10</span>  
+                ⚡</h1>
+            </div>
+        </div> 
+        
+        <div class="game-container">
+            <div class="wheel-section">
+                <div class="wheel-container">
+                    <div class="pointer-unChange" id="wheelContainer"></div> 
+                    <div class="wheel" id="wheel"></div>
+                    <button class="wheel-center" id="spinButton">
+                        <i class="fas fa-sync-alt"></i> SPIN
+                    </button>
+                    <div class="pointer"><i class="fas fa-caret-down"></i></div>
+                </div>
+            </div>
+            
+            <div class="controls-section">
+                <div class="prizes">
+                    <h2 class="section-title"><i class="fas fa-gift"></i> Premium Prizes</h2>
+                    <div class="prize-list" id="prizeList"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="container-bottom">  
+            <div class="result-section"> 
+                <div class="result-text" id="resultText">
+                    Ready to spin? Good luck!
+                </div>
+            </div>
+            
+            <div class="history">
+                <h2 class="section-title"><i class="fas fa-history"></i> Spin History</h2>
+                <div class="history-list" id="historyList"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="confetti" id="confetti"></div>
+
+<script>
+    
+    let socket;
+    let balance = 0; 
+    let isConnecting = false;
+    let reconnectAttempts = 0;  
+    let currentBid = 0; 
+      
+    let isSpinning = false;  
+    let spinHistory = [];
+    
+    const wheel = document.getElementById('wheel'); 
+    const wheelContainer0 = document.getElementById('wheelContainer');
+    const spinButton = document.getElementById('spinButton');
+    const resultText = document.getElementById('resultText'); 
+    const prizeList = document.getElementById('prizeList');
+    const historyList = document.getElementById('historyList');
+    const confettiContainer = document.getElementById('confetti');
+
+
+    const prizes = [
+        { name: "0 Coins", value: 0, icon: "fas fa-coins", color: "linear-gradient(135deg, #f1c40f, #f39c12)" },
+        { name: "50 Coins", value: 50, icon: "fas fa-coins", color: "linear-gradient(135deg, #f39c12, #e67e22)" },
+        { name: "100 Coins", value: 100, icon: "fas fa-coins", color: "linear-gradient(135deg, #e67e22, #d35400)" },
+        { name: "250 Coins", value: 250, icon: "fas fa-coins", color: "linear-gradient(135deg, #0dfde694, #82da20)" },
+        { name: "Gold Box", value: "Gold Box", icon: "fas fa-box-open", color: "linear-gradient(135deg, #ffd700, #daa520)" },
+        { name: "Platinum Box", value: "Platinum Box", icon: "fas fa-gem", color: "linear-gradient(135deg, #e5e4e2, #b6d0e2)" },
+        { name: "Diamond Box", value: "Diamond Box", icon: "fas fa-gem", color: "linear-gradient(135deg, #00ccff, #0066ff)" },
+        { name: "Mystery Gift", value: "Mystery Gift", icon: "fas fa-gift", color: "linear-gradient(135deg, #9b59b6, #8e44ad)" } 
+    ];
+           
+    
+        
+    async function fetchBalance() {
+        try {
+            const response = await fetch('/Earn/api/my_profile/', {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem("access_token")}`
+                }
+            });
+            const data = await response.json();
+            balance = data?.data?.coins; 
+            updateBalanceDisplay();
+        } catch (error) {
+            console.error('Balance fetch failed:', error);
+        }
+    }
+
+    fetchBalance();
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        connectWebSocket();
+         
+        const balanceElement = balance;
+        if (balanceElement) {
+            balance = parseInt(balanceElement.textContent) || 0;
+            updateBalanceDisplay();
+        }
+         
+    });
+     
+    function connectWebSocket() {
+        if (isConnecting) return;
+        
+        isConnecting = true;
+        socket = new WebSocket(
+            (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + 
+            window.location.host + '/ws/spinWheel_game/spinWheel/'
+        );
+
+        socket.onopen = () => {
+            isConnecting = false;
+            reconnectAttempts = 0;
+            console.log('✅ WebSocket connected'); 
+            currentPlayerId = "{{ obj_player.user.auth_token }}"; 
+            setTimeout(() => sendSocket({ action: 'get_initial_state' }), 500);
+        };
+
+        socket.onclose = (e) => {
+            isConnecting = false;
+            console.error('WebSocket disconnected. Retrying...');
+            reconnectAttempts++;
+            const delay = Math.min(3000 * reconnectAttempts, 3000);
+            setTimeout(connectWebSocket, delay);
+        };
+
+        socket.onerror = (e) => {
+            console.error("WebSocket error:", e);
+            socket.close();
+        };
+
+        socket.onmessage = (e) => {
+            try {
+                const data = JSON.parse(e.data);
+                handleSocketMessage(data);
+            } catch (error) {
+                console.error("Message parsing error:", error);
+            }
+        };
+    }
+        
+    function sendSocket(data) {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            try {
+                socket.send(JSON.stringify(data));
+            } catch (error) { 
+                NotificationHandlerGet.showError(`Error sending WebSocket message:${error}`);
+            }
+        } else { 
+            NotificationHandlerGet.showError(`WebSocket not connected. Message not sent :${data}`);
+        }
+    }
+     
+    function handleError(data) {
+        const errorMap = {
+            "Failed to initialize game": "Game is restarting...",
+            "Invalid round": "New round starting...",
+            "Insufficient balance": "Add coins to play"
+        };
+        
+        const message = errorMap[data.message]; 
+        if (message === undefined){
+            return 
+        }else{
+            NotificationHandlerGet.showError(` ${data.message.includes("Failed") ? 'warning' : 'error'}:${message}`);
+        }
+         
+    }
+      
+         
+    function handleSocketMessage(data) { 
+        const handlers = { 
+            'error': handleError
+        };
+
+        if (data.type in handlers) {
+            handlers[data.type](data);
+        }
+    }
+ 
+    function updateBalanceDisplay() {
+        const balanceElement = balance;
+        if (balanceElement) {
+            
+            balanceElement.textContent = balance;
+        }
+         
+    }  
+
+
+    function createWheel() {
+        wheel.innerHTML = '';
+        wheelContainer0.innerHTML = '';
+        const segmentAngle = 360 / prizes.length;
+        prizes.forEach((prize, index) => { 
+            const rotation = segmentAngle * index;
+            const rotationPointer = segmentAngle * index;
+            const segment = document.createElement('div');
+            segment.className = 'wheel-item';
+            segment.style.transform = `rotate(${rotation}deg)`;
+            segment.style.background = prize.color;
+            const content = document.createElement('div');
+            content.className = 'wheel-item-content';
+            content.innerHTML = `
+                <i class="${prize.icon}"></i>
+                <div>${prize.name}</div>
+            `; 
+            const pointed = document.createElement('div');
+            pointed.className = `pointer-${index}  pointer-unChange`;
+            pointed.style.transform = `rotate(${rotationPointer}deg)`;  
+            
+            segment.appendChild(content);
+            wheelContainer0.appendChild(pointed);  
+            wheel.appendChild(segment);
+        });
+        const spinBtn = document.createElement('button');
+        spinBtn.id = "spinButton";
+        spinBtn.className = 'wheel-center';
+        spinBtn.innerHTML = `<i class="fas fa-sync-alt"></i> SPIN`;
+        wheel.appendChild(spinBtn);
+    }
+  
+    function createPrizeList() {
+        prizeList.innerHTML = '';
+        
+        prizes.forEach(prize => {
+            const prizeItem = document.createElement('div');
+            prizeItem.className = 'prize-item';
+            prizeItem.innerHTML = `
+                <i class="${prize.icon}"></i>
+                <span>${prize.name}</span>
+            `;
+            prizeItem.style.background = prize.color;
+            prizeList.appendChild(prizeItem);
+        });
+    }
+            
+    function spinWheel() { 
+        isSpinning = true;
+        spinButton.disabled = true;
+        resultText.textContent = "Spinning...";
+        resultText.classList.remove('win-animation');
+         
+        balance -= 100; 
+        
+        const spins = 5 + Math.floor(Math.random() * 3);
+        const segmentAngle = 325 / prizes.length;
+        const prizeIndex = Math.floor(Math.random() * prizes.length);
+        const extraRotation = segmentAngle * prizeIndex;
+        
+        const totalRotation = 720 * spins + extraRotation;
+        wheel.style.transform = `rotate(${-totalRotation}deg)`;
+        wheelContainer0.style.transform = `rotate(${-totalRotation}deg)`;
+        
+        setTimeout(() => {
+            const prize = prizes[prizeIndex];
+            showResult(prize);
+            isSpinning = false; 
+        }, 5500);
+    }
+            
+    function showResult(prize) {
+        let resultMessage = '';
+        let balanceWon = 0;
+        
+        if (prize.name.includes("Coins")) {
+            balanceWon = prize.value;
+            balance += balanceWon;
+            resultMessage = `You won ${balanceWon} coins!`;
+        } else {
+            resultMessage = `Congratulations! You won a ${prize.value}!`;
+        }
+        
+        resultText.textContent = resultMessage;
+        resultText.classList.add('win-animation');
+        
+        const now = new Date();
+        const timestamp = now.toLocaleTimeString();
+        spinHistory.unshift({
+            prize: prize.name,
+            time: timestamp,
+            balance: balanceWon
+        });
+        
+        updateHistory(); 
+        createConfetti();
+    }
+     
+    function updateHistory() {
+        historyList.innerHTML = '';
+        
+        spinHistory.slice(0, 8).forEach(item => {
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            
+            if (item.coins > 0) {
+                historyItem.innerHTML = `
+                    <span><i class="fas fa-coins"></i> ${item.prize}</span>
+                    <span>+${item.coins} <i class="fas fa-coins" style="color: gold;"></i></span>
+                    <span>${item.time}</span>
+                `;
+            } else {
+                historyItem.innerHTML = `
+                    <span><i class="fas fa-gift"></i> ${item.prize}</span>
+                    <span>${item.time}</span>
+                `;
+            }
+            
+            historyList.appendChild(historyItem);
+        });
+    }
+            
+    spinButton.addEventListener('click', spinWheel);
+    
+    function initGame() {
+        createWheel();
+        createPrizeList(); 
+        
+        setInterval(() => {
+            spinButton.classList.toggle('pulse');
+        }, 5000);
+    } 
+        
+    document.addEventListener('DOMContentLoaded', function() {  
+        initGame();
+
+    });
+ 
+
+      
+    function createConfetti() { 
+        confettiContainer.innerHTML = '';
+        
+        for (let i = 0; i < 150; i++) {
+            const confetti = document.createElement('div');
+            confetti.style.position = 'absolute';
+            confetti.style.width = Math.random() * 15 + 5 + 'px';
+            confetti.style.height = Math.random() * 15 + 5 + 'px';
+            confetti.style.backgroundColor = getRandomColor();
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.top = '-30px';
+            confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+            confetti.style.opacity = Math.random() * 0.7 + 0.3;
+            confetti.style.zIndex = '1000';
+            
+            confettiContainer.appendChild(confetti);
+            
+            animateConfetti(confetti);
+        }
+        
+        setTimeout(() => {
+            confettiContainer.innerHTML = '';
+        }, 6000);
+    }
+            
+    function animateConfetti(element) {
+        const duration = Math.random() * 3 + 3;
+        const horizontal = Math.random() * 300 - 150;
+        
+        element.animate([
+            { transform: 'translateY(0) rotate(0deg)', opacity: 1 },
+            { transform: `translateY(100vh) translateX(${horizontal}px) rotate(${Math.random() * 720}deg)`, opacity: 0 }
+        ], {
+            duration: duration * 1000,
+            easing: 'cubic-bezier(0,0.9,0.57,1)'
+        });
+    }
+    
+    function getRandomColor() {
+        const colors = ['#ff00cc', '#3333ff', '#00ccff', '#ffd700', '#4fc3f7', '#00ff99', '#ff6600'];
+        return colors[Math.floor(Math.random() * colors.length)];
+    }
+        
+</script>
+     
+{% include 'layout/HomePage/Footer_Home.html' %}
+{% load static %}
+
+
+<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script> 
+
+</body>
+</html>

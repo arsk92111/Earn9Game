@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+     {% load static %}
+   {% include 'layout/account/header.html' %}
+    <title> Earn9Game | Code Activation </title>
+</head>
+<body>
+   
+      <div class="login-form">
+         <div class="text">
+            Activation
+         </div>
+         <form id="verifyForm" onsubmit="event.preventDefault(); submitVerifyForm();"  method="POST" enctype="multipart/form-data">
+             {% csrf_token %}
+            <div class="field">
+               <div class="fas fa-envelope"></div>
+               <input type="text" name="pin_code" id="pin_code" placeholder="Enter Pin Code ">
+            </div>  
+         
+            <button type="submit">Activation</button>
+             <div class="link">
+               Not yet received code?
+               <a  onclick="submitRegenerateForm(); return false;">RESEND</a>
+            </div>
+            <div class="link">
+                Already a member?
+               <a href="{% url 'login_page' %}">Login now</a>
+            </div>
+         </form >
+      </div> 
+
+     {% load static %}
+    {% include 'layout/account/footer.html' %}
+
+    
+</body>
+
+</html>
+ 

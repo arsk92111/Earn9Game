@@ -1,0 +1,66 @@
+ {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+ 
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Earn9.Game - Ultimate Gaming Experience</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Orbitron:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">  
+      
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"> 
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <link rel="icon" href="{% static 'icon.jpeg' %}" type="image/jpeg">
+    <link rel="stylesheet" href="{% static 'HomePage/css/style.css' %}"> 
+
+  <script type="text/javascript" src="{% static 'GetMethod/GetMethod.js' %}"></script> 
+  <script type="text/javascript" src="{% static 'GetMethod/Get_Api_Call.js' %}"></script> 
+
+    </head>
+
+    
+<body> 
+
+    <div id="particles-js"></div>
+    <div class="header">
+       <a href="{% url 'home_page' %}"> 
+      <header class="cyber-header">  
+          <h1 class="hologram-logo">EARN9.GAME</h1>
+      </header> 
+     </a>
+    <div class="balance">💰 <span id="coins">0 Coins</span></div>
+    <div class="dropdown">
+      <div class="profile-area dropdown-toggle" data-bs-toggle="dropdown" role="button"> 
+        <img src="https://i.pravatar.cc/150?img=1" alt="Profile" class="profile-img" />
+      </div>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><span class="profile-name bg-red-900 text-white" id="profile-name">Unknown</span></li>
+        <hr /> 
+        <li><a class="dropdown-item"  onclick="openWallet()">Wallet</a></li>
+        <li><a class="dropdown-item"  onclick="openSettings()">Settings</a></li> 
+        <li><a class="dropdown-item" type="submit" onclick="submitLogoutForm()">Logout</a></li>
+      </ul>
+    </div>
+  </div>
+  
+  <div id="loader" style="display: none; text-align: center; padding: 1rem;">
+    <span style="color: rgb(226, 4, 4);">Loading player data...</span>
+</div>
+
+
+<script>
+    
+document.addEventListener("DOMContentLoaded", () => {
+    fetchAuthenticatedPlayerData();
+    fetchLeaderBoard();
+    fetchProfileData();
+});
+</script>
+
+ 
+ 

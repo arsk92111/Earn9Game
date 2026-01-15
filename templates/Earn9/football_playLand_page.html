@@ -1,0 +1,1575 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>Foot Ball Hit Game - Earn9</title>
+    {% load static %}
+    <script src="https://cdn.tailwindcss.com"></script> 
+    <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/htmx-ext-ws@2.0.2" integrity="sha384-vuKxTKv5TX/b3lLzDKP2U363sOAoRo5wSvzzc3LJsbaQRSBSS+3rKKHcOx5J8doU" crossorigin="anonymous"></script> 
+
+    <link rel="stylesheet" href="{% static 'AllGame/css/cardgame.css' %}">  
+    <link rel="stylesheet" href="{% static 'football/css/normalize.min.css' %}">
+    <link rel="stylesheet"  href="{% static 'football/css/main.css' %}"> 
+    
+    {% include 'layout/HomePage/Header_Home.html' %}
+
+<style>   
+        .game-container {
+            background: radial-gradient(circle at center, #0a0e1a 0%, #050811 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .game-play-container {
+            background: radial-gradient(circle at center, #0a0e1a 0%, #050811 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        } 
+        .header-glow {
+            text-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+            position: relative;
+        }
+
+        .header-glow::after {
+            content: '';
+            position: absolute;
+            inset: -5px;
+            background: linear-gradient(45deg, 
+                rgba(59,130,246,0.2) 0%,
+                rgba(99,102,241,0.1) 50%,
+                rgba(59,130,246,0.2) 100%
+            );
+            border-radius: 12px;
+            z-index: -1;
+        }
+
+        /* Holographic Cards */
+        .card {
+            width: 280px;
+            height: 380px;
+            perspective: 1000px;
+            cursor: pointer;
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            background: linear-gradient(145deg, #1a1f2b, #151922);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card:hover {
+            transform: translateY(-5px) scale(1.02);
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+            border-radius: 20px;
+        }
+
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            padding: 2rem;
+            background: linear-gradient(145deg, #2d3748, #1f2937);
+            border: 2px solid rgba(59,130,246,0.3);
+        }
+
+        .card-back {
+            background: linear-gradient(45deg, #1e3a8a 0%, #1e40af 100%);
+            transform: rotateY(180deg);
+        }
+
+        /* Animated Neon Border */
+        .selected {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .selected::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(45deg, 
+                #3b82f6 0%,
+                #6366f1 50%,
+                #3b82f6 100%
+            );
+            border-radius: 22px;
+            animation: borderGlow 2s linear infinite;
+            z-index: -1;
+        }
+
+        /* Cyberpunk Timer */
+        .timer-container {
+            background: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(59,130,246,0.3);
+            box-shadow: 0 0 20px rgba(59,130,246,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .timer-container::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, 
+                transparent 0%,
+                rgba(59,130,246,0.1) 50%,
+                transparent 100%
+            );
+            animation: scanline 6s linear infinite;
+        }
+
+        #timer {
+            background: linear-gradient(45deg, #8b5cf6, #3b82f6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            text-shadow: 0 0 10px rgba(59,130,246,0.5);
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Holographic Buttons */
+        .coin-btn {
+            background: linear-gradient(145deg, #2d3748, #1f2937);
+            border: 1px solid rgba(59,130,246,0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+        }
+
+        .coin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59,130,246,0.2);
+        }
+
+        .coin-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, 
+                transparent 0%,
+                rgba(59,130,246,0.1) 50%,
+                transparent 100%
+            );
+            animation: scanline 3s linear infinite;
+        }
+
+        /* Animated Background Particles */
+        .particles {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            .card {
+                width: 150px;
+                height: 250px;
+                margin: 0.3rem;
+            }
+
+            .card-front, .card-back {
+                font-size: 1rem;
+                padding: 1rem;
+            }
+
+            #timer {
+                font-size: 0.8rem;
+            }
+
+            .timer-container span {
+                font-size: 0.875rem;
+            }
+
+            .bet-controls {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.5rem;
+            }
+
+            .coin-btn {
+                padding: 0.75rem;
+                font-size: 1rem;
+            }
+        }
+        .card.selected {
+            border: 2px solid #3b82f6;
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.5);
+        }
+
+        .card.selected::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 22px;
+            background: linear-gradient(45deg, 
+                rgba(59,130,246,0.4) 0%,
+                rgba(99,102,241,0.3) 50%,
+                rgba(59,130,246,0.4) 100%
+            );
+            z-index: -1;
+        }
+        /* Animations */
+        @keyframes borderGlow {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+
+        @keyframes particle {
+            0% { transform: translateY(0) scale(0); opacity: 1; }
+            100% { transform: translateY(-100px) scale(1); opacity: 0; }
+        }
+
+        #result-Model{
+            flex : 'items-center justify-center';
+
+        }
+        @keyframes result-Model {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+    
+        #players-list {
+            max-height: 60vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #4a5568 #2d3748;
+        }
+
+        .player-bet {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        /* Bet Display Styles */
+        .bet-display {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(45deg, rgba(59,130,246,0.3), rgba(99,102,241,0.2));
+            padding: 8px 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(59,130,246,0.3);
+            box-shadow: 0 0 15px rgba(59,130,246,0.2);
+            z-index: 2;
+        }
+
+        .total-bet {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(17, 24, 39, 0.9);
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 0.9em;
+            border: 1px solid rgba(59,130,246,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .bet-display {
+                padding: 6px 12px;
+                font-size: 0.8em;
+            }
+            .total-bet {
+                font-size: 0.7em;
+                padding: 4px 8px;
+            }
+        } 
+        
+                /* Add these styles */
+        .nav-arrow {
+            transition: all 0.3s ease;
+            min-width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .amount-groups {
+            position: relative;
+            min-height: 40px;
+            min-width: 80px;
+        }
+
+        .amount-group {
+            position: absolute;
+            width: 100%;
+            display: flex;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.1rem;
+            transition: opacity 0.3s ease;
+        }
+
+        .amount-group.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .amount-group:not(.hidden) {
+            position: relative;
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .nav-arrow {
+                padding: 0.5rem;
+            }
+            
+        }
+
+
+        /* Responsive Adjustments */
+        @media (min-width: 768px) {
+            .bg-gray-800.p-6.rounded-xl.neon-box {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+            
+            .grid.grid-cols-2.md\:grid-cols-4 {
+                flex: 2;
+                justify-content: flex-end;
+            }
+            
+            .coin-btn {
+                min-width: 65px;
+                min-height: 40px;
+                flex: none;
+            }
+            
+            .flex.flex-col.md\:flex-row {
+                flex: 1;
+                margin-bottom: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .flex.flex-col.md\:flex-row {
+                flex-direction: column;
+                /* gap: 0.75rem; */
+            }
+            
+            #confirm-bet-btn {
+                width: fit-content;
+                font-size: small;
+            }
+            
+            .coin-btn {
+                min-width: calc(10% - 0.25rem);
+            }
+        }
+
+        /* Responsive Adjustments */
+        
+        @media (max-width: 320px) {
+
+            
+            .bg-gray-800.p-6.rounded-xl.neon-box {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+            
+            .grid.grid-cols-2.md\:grid-cols-4 {
+                flex: 2;
+                justify-content: flex-end;
+            }
+            
+            
+            .flex.flex-col.md\:flex-row {
+                flex: 1;
+                margin-bottom: 0;
+            }
+            .flex.flex-col.md\:flex-row {
+                flex-direction: column;
+                gap: 0.45rem;
+            }
+            
+            #confirm-bet-btn {
+                width: fit-content;
+                font-size: small;
+            }
+            
+            .coin-btn {
+                min-width: calc(5% - 0.15rem);
+                /* padding: 0.25rem; */
+                font-size: 0.6rem;
+            }
+        }
+   
+        @keyframes winnerFlash {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            30% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+            60% {
+                opacity: 1;
+                transform: scale(1.6);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(2);
+            }
+        }
+
+        .winner-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            font-weight: bold;
+            color: rgb(191, 163, 3);
+            text-shadow: 0 0 10px rgb(209, 180, 14);
+            animation: winnerFlash 2s ease-out forwards;
+            /* z-index: 50; */
+            pointer-events: none;
+        }
+
+
+        @keyframes winnerFlashCard {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            30% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+            60% {
+                opacity: 1;
+                transform: scale(1.6);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(2);
+            }
+        } 
+        .card {
+            perspective: 1000px;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .card-inner.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            /* backface-visibility: hidden; */
+        }
+
+        .card-front {
+            transform: rotateY(0deg);
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+        }
+
+        .card:hover {
+            transform: scale(1.02);
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .neon-glow {
+        filter: drop-shadow(0 0 2px #fff)
+                drop-shadow(0 0 6px #0ff)
+                drop-shadow(0 0 12px yellow);
+        transition: filter 0.4s ease;
+        }
+
+        #players-group {
+            max-width: 100%;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+      
+        
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            10% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1.1);
+            }
+        }
+
+        .animate-fade-in-out {
+            animation: fadeInOut 2s ease-in-out forwards;
+            z-index: 50;
+            }
+        .blur {
+            filter: blur(5px);
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+</style>
+
+<style>
+    
+    @keyframes winnerFlash {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            30% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+            60% {
+                opacity: 1;
+                transform: scale(1.6);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(2);
+            }
+        }
+
+        .winner-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            font-weight: bold;
+            color: rgb(191, 163, 3);
+            text-shadow: 0 0 10px rgb(209, 180, 14);
+            animation: winnerFlash 2s ease-out forwards;
+            /* z-index: 50; */
+            pointer-events: none;
+        }
+
+
+        @keyframes winnerFlashCard {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            30% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+            60% {
+                opacity: 1;
+                transform: scale(1.6);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(2);
+            }
+        }
+
+        .winner-text-Card {
+            position: absolute;
+            top: 25%;
+            /* left: 70%; */
+            /* bottom: auto; */
+            transform: translate(-10%, -10%);
+            font-size: 2rem;
+            font-weight: bold;
+            color: rgb(191, 163, 3);
+            text-shadow: 0 0 10px rgb(209, 180, 14);
+            animation: winnerFlashCard 2s ease-out forwards; 
+            pointer-events: none;
+        }
+    .modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0,0,0,0.9);
+        color: white;
+        padding: 2rem;
+        border-radius: 10px;
+        text-align: center;
+        z-index: 1000;
+        display: none;
+    }
+    .modal h2 {
+        color: #4CAF50;
+        font-size: 2em;
+    }
+    .hidden {
+        display: none !important;
+        }
+
+    #kick-btn-container {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-top: 670px; 
+        /* background-image: url("/static/football/img/favicons/zee-ball-16x16.png") ; */
+    }
+    
+    #kick-btn { 
+        display: flex;  
+    }
+    @media  (max-width: 450px) {
+        #kick-btn-container {   
+            position: absolute;
+            top: 2px;  
+        }
+        
+        #kick-btn { 
+            display: flex;  
+        }
+    } 
+    
+    @media  (max-width: 320px) {
+        #kick-btn-container {   
+            position: absolute;
+            top: 5px;  
+        }
+        
+        #kick-btn { 
+            display: flex;  
+        }
+    } 
+ 
+    .fade-result {
+        display: none;
+        font-size: 24px;
+        text-align: center;
+        margin-top: 15px;
+        opacity: 0;
+        transition: opacity 2s ease-in;
+    }
+
+    .fade-result.visible {
+        display: block;
+        opacity: 1;
+    }
+
+    .hidden-btn {
+        display: none;
+        margin: 20px auto;
+        padding: 10px 20px;
+        font-size: 18px;
+    }
+
+</style>
+
+<style>
+    .score-boardX {
+        flex: 0.5;
+        background: rgba(0, 0, 0, 0.7);
+        border: 2px solid #4f46e5;
+        border-radius: 8px;
+        padding: 2px 0 0 64px; 
+        box-shadow: 0 0 15px rgba(79, 70, 229, 0.3);
+        width: 80px;
+        height: 80px;
+        max-width: 350px; 
+    }
+    
+    .score-boardX:not(.active-turn) {
+        opacity: 0.6;
+        filter: grayscale(0.5);
+        border-color: #6b7280;
+        box-shadow: 0 0 10px rgba(107, 114, 128, 0.3);
+    }
+    .score-boardXY {
+        flex: 0.5;
+        background: rgba(0, 0, 0, 0.7);
+        border: 2px solid #4f46e5;
+        border-radius: 8px;
+        padding: 2px 0 0 10px; 
+        box-shadow: 0 0 15px rgba(79, 70, 229, 0.3);
+        width: 80px;
+        height: 80px;
+        max-width: 350px;
+    }
+    
+    .score-boardXY:not(.active-turn) {
+        opacity: 0.6;
+        filter: grayscale(0.5);
+        border-color: #6b7280;
+        box-shadow: 0 0 10px rgba(107, 114, 128, 0.3);
+    }
+    .board-header {
+        font-size: 0.7rem;
+        font-weight: bold;
+        color: white; 
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.1rem;
+        color: white;
+        justify-items: start;
+    } 
+</style>
+    
+</head>
+
+
+<body class="game-container"> 
+    <div id="game-play-container" class="max-w-6xl mx-auto px-1 py-1"> 
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-1"> 
+            <div class="col-span-1 lg:col-span-2">  
+
+                <div class="flex flex-col md:flex-row justify-between align-items justify-center items-center mb-2 gap-1 neon-border">
+                    <div class="flex items-center space-x-4 header-glow inline-block rounded-full timer-container">
+                        <h1 class="text-2xl md:text-3xl font-bold text-white">⚡ FOOTBALL HIT 
+                            <span id="timer" class="text-2xl md:text-3xl font-bold text-white"> 25 </span>  
+                           <span class="text-2xl md:text-3xl font-bold text-white"> </span>  
+                        ⚡</h1>
+                    </div>
+                </div>
+
+                <div id="result-announcement" class="fixed inset-0 pointer-events-none z-50"></div>
+                <div id="round-result" class="fade-result"></div>
+
+                <button id="next-round-btn" class="hidden-btn">Play Next Round</button>
+                <div id="zee-game" class="flow justify-between"> 
+                    <div class="goal-keeper standing" id="goal-keeper-state-1"></div>
+                    <div class="goal-keeper left-jump" id="goal-keeper-state-2"></div>
+                    <div class="goal-keeper right-jump" id="goal-keeper-state-3"></div>
+                    <img id="zee-ball" src="{% static '/football/img/zee-ball.png' %}" width="43" height="43"/>
+                    <canvas id="kickAnimation"></canvas>
+                
+                    <div id="modal-1" class="modalX">Click to fix vertical direction</div>
+                    <div id="modal-2" class="modalX">Click to fix horizontal direction</div>
+                    <div id="modal-3" class="modalX">Click to adjust power and kick</div>
+                    <div id="modal-4" class="modalX">You Missed the Goal!</div>
+                    <div id="modal-5" class="modalX">Goal!</div> 
+                    
+                    <div id="vertical-direction"></div>
+                    <div id="vertical-direction-indicator" class="small-ball one-end"></div>
+                    <div id="horizontal-direction"></div>
+                    <div id="horizontal-direction-indicator" class="small-ball one-end"></div>
+                    <div id="power-level"></div>
+                    <div id="power-level-indicator" class="small-ball one-end"></div>
+             
+                  <ul id="score-boardX" class="justify-between justify-content justify-items">  
+                        <div class="scoreboards-container flex justify-items gap-2 mb-2"> 
+                            <div id="player-a-board" class="score-boardXY">
+                                <div class="board-header justify-center justify-items">
+                                    <span id="username-label-a" class="username-label"></span>
+                                    <span id="player-a-username" class="username"></span>
+                                </div>
+                                <div class="stats-grid flex">
+                                    <div class="flex-row">  
+                                        <div  class="text-xs bold flex">Score:  <div id="player-a-score"  class="flex-row">0</div></div> 
+                                        <div class="text-xs bold  flex">Power: <div id="player-a-power" class="flex-row">0</div></div> 
+                                    </div>
+                                    <div class="flex-row">  
+                                        <div class="text-xs bold  flex">Horizontal: <div id="player-a-horizontal" class="flex-row">0</div></div>
+                                        <div class="text-xs bold  flex">Vertical: <div id="player-a-vertical" class="flex-row">0</div></div>
+                                    </div> 
+                                </div>
+                            </div> 
+                            <div id="player-b-board" class="score-boardXY">
+                                <div class="board-header">
+                                    <span id="username-label-b" class="username-label"></span>
+                                    <span id="player-b-username" class="username"></span>
+                                </div>
+                                <div class="stats-grid flex">
+                                    <div class="flex-row"> 
+                                        <div class="text-xs bold  flex">Score: <div id="player-b-score" class="flex-row"> 0 </div></div> 
+                                        <div class="text-xs bold  flex">Power: <div id="player-b-power" class="flex-row"> 0 </div></div> 
+                                    </div>
+                                    <div class="flex-row"> 
+                                        <div class="text-xs bold  flex">Horizontal: <div id="player-b-horizontal" class="flex-row"> 0 </div></div> 
+                                        <div class="text-xs bold  flex">Vertical: <div id="player-b-vertical" class="flex-row">  0</div></div> 
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <input type="hidden" id="vertical-value" />
+                        <input type="hidden" id="horizontal-value" />
+                        <input type="hidden" id="power-value" />
+                        <input type="hidden" id="is_goalMe" />
+                  </ul> 
+                   
+                </div> 
+                <div id="kick-btn-container" >
+                    <button id="kick-btn" class="play-btn" onclick="kickingProcess()">Kick</button>
+                  </div> 
+              </div>  
+          </div>
+      </div>
+  </div>
+  
+</div>
+<div id="error-message" class="fixed top-4 right-4 bg-red-600 text-white p-3 rounded hidden"></div>
+
+
+  {% include 'layout/HomePage/Footer_Home.html' %}
+  {% load static %}
+   
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="{% static 'football/js/vendor/jquery-1.11.0.min.js' %}" ></script>
+    <script src="{% static 'football/js/vendor/modernizr-2.6.2.min.js' %}" ></script>
+    <!-- <script src="{% static 'football/js/main.js' %}" ></script> -->
+    <script src="{% static 'football/js/plugins.js' %}" ></script>
+    <!-- <script src="{% static 'football/js/.main.js.swp' %}" ></script> -->
+    <script src="{% static 'football/js/vendor/pathAnimator.js' %}" ></script> 
+    
+<script> 
+    let socket; 
+    let currentTimer = 25;  
+    let reconnectAttempts = 0;   
+    let currentPlayerTurn = null; 
+    let isMyTurn = false;
+    let gameTimer;  
+    let playerAId = null;
+    let playerBId = null;
+    let remainingTime = 0;
+    let currentPlayer = null;
+    const pass = "a";
+    const sessionId  = true;  
+    const pathSegments = window.location.pathname.split('/');
+    const game_id = pathSegments[4]; 
+    const timerElement = document.getElementById('timer'); 
+  
+  function initWebSocket() { 
+      socket = new WebSocket(
+          (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + 
+          window.location.host + `/ws/football_playLand/football_session/${game_id}/`
+      );
+      
+         
+    socket.onopen = () => { 
+        socket.send(JSON.stringify({action: 'get_state'}));
+        if(sessionId) {
+            socket.send(JSON.stringify({
+                action: 'reconnect', 
+                player_id: currentPlayer  // Send player ID on reconnect
+            }));
+        }
+    };
+
+      socket.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          handleSocketMessage(data);
+      };
+      
+      socket.onclose = (e) => {
+          console.log(`Socket closed. Reconnect attempt: ${reconnectAttempts}`);
+          if(reconnectAttempts < 5) {
+              setTimeout(() => {
+                  reconnectAttempts++;
+                  initWebSocket();
+              }, Math.min(1000 * reconnectAttempts, 5000));
+          }
+      };
+
+  }
+
+    function handleSocketMessage(data) { 
+        switch(data.type) {
+            case 'game_state':
+                updateGameState(data); 
+                break;
+            case 'game.update':
+                handleGameUpdate(data);
+                break;
+            case 'initial_state':  // Add this case
+                resetTimer(data.timer);
+                handleGameUpdate(data);
+                break;
+            case 'game.result':
+                handleResults(data.result);
+                break;
+        }
+    } 
+
+    function send_game_state(data){  
+        const isPlayerA = currentPlayer === data.scores.player_a_auth_token; 
+        document.getElementById('username-label-a').textContent = isPlayerA ? "You : " : "Opponent : ";
+        document.getElementById('username-label-b').textContent = isPlayerA ? "Opponent : " : "You : ";
+
+        document.getElementById('player-a-username').textContent = "Cristiano Ronaldo ( CR7 )";
+        document.getElementById('player-a-score').textContent = data.scores.a;
+        document.getElementById('player-a-power').textContent = data.scores.a_power.toFixed(2);
+        document.getElementById('player-a-horizontal').textContent = data.scores.a_horizontal.toFixed(2);
+        document.getElementById('player-a-vertical').textContent = data.scores.a_vertical.toFixed(2); 
+        
+        document.getElementById('player-b-username').textContent = "Lionel Messi ( LM10 )";
+        document.getElementById('player-b-score').textContent = data.scores.b;
+        document.getElementById('player-b-power').textContent = data.scores.b_power.toFixed(2);
+        document.getElementById('player-b-horizontal').textContent = data.scores.b_horizontal.toFixed(2);
+        document.getElementById('player-b-vertical').textContent = data.scores.b_vertical.toFixed(2); 
+           
+    }
+
+    function updateGameState(state) {    
+        currentPlayerTurn = state.current_turn;  
+        isMyTurn = (currentPlayerTurn === currentPlayer);  
+        
+        updateKeeperState(state.keeper_state);
+        updateTimer(state.timer);
+        toggleKickButton(isMyTurn);  
+         
+    }
+
+    function handleGameUpdate(update) {  
+        const playerA = document.getElementById("player-a-board");
+        const playerB = document.getElementById("player-b-board"); 
+
+        currentPlayerTurn = update.current_turn;
+        isMyTurn = (currentPlayerTurn === currentPlayer);   
+
+        if (typeof update.timer === 'number') {
+            resetTimer(update.timer);  
+        } 
+        toggleKickButton(isMyTurn);  
+        send_game_state(update); 
+        update.scores.round_status == "PLAYER_A_TURN" ? `${playerA.classList.add("active-turn") , playerB.classList.remove("active-turn")}` : `${playerB.classList.add("active-turn") , playerA.classList.remove("active-turn")}` ;
+    }  
+
+    function toggleKickButton(enable) {
+        const kickBtn = document.getElementById('kick-btn');
+        if(kickBtn) {
+            kickBtn.style.display = enable ? 'block' : 'none';
+            kickBtn.disabled = !enable;
+        }
+    }
+ 
+    function resetTimer(seconds) {
+        clearInterval(gameTimer);
+        remainingTime = seconds; 
+        if (remainingTime <= 0) {
+            remainingTime = 25;  // Reset to full duration
+        }
+
+        timerElement.textContent = remainingTime;
+
+        gameTimer = setInterval(() => {
+            remainingTime--;
+            timerElement.textContent = remainingTime;
+
+            if (remainingTime <= 0) {
+                clearInterval(gameTimer);
+                socket.send(JSON.stringify({ action: 'sync' })); 
+                setTimeout(() => socket.send(JSON.stringify({action: 'get_state'})), 1000);
+            }
+        }, 1000);
+    }
+    
+    function updateTimer(seconds) {
+        const parsedSeconds = parseInt(seconds, 10);
+        currentTimer = Number.isNaN(parsedSeconds) ? 25 : parsedSeconds;
+        timerElement.textContent = currentTimer;
+    }
+
+    function handleResults(result) { 
+        if (window.resultsTimeout) clearTimeout(window.resultsTimeout);
+        showVictoryModal(result);
+        
+    }
+
+    function showVictoryModal(result) {
+        const btnKick = document.getElementById('kick-btn');
+        btnKick.style.display = 'none';
+
+        const resultDiv = document.createElement('div');
+        resultDiv.className = `absolute text-center text-white font-bold animate-fade-in-out`;
+        resultDiv.classList.add("text-4xl", "p-4");
+        resultDiv.style.top = "40%";
+        resultDiv.style.left = "50%";
+        resultDiv.style.transform = "translate(-50%, -50%)";
+
+        const announcementContainer = document.getElementById("result-announcement");
+        announcementContainer.innerHTML = "";  
+        const userCurrent = "{{ player.auth_token }}";  
+        
+        if(result.result_type.winner_a == userCurrent || result.result_type.winner_b == userCurrent){
+                resultDiv.innerHTML = `
+                    <div class="text-green-400 drop-shadow-lg">
+                         🎉 YOU WIN! 🎉 
+                    </div>
+                    <div class="text-yellow-300 text-2xl mt-2">
+                         ${result.result_type.prize} 🪙 
+                    </div>
+                `;
+        }
+        else if(result.result_type.loser_a == userCurrent || result.result_type.loser_b == userCurrent){
+                resultDiv.innerHTML = `
+                    <div class="text-red-500 drop-shadow-lg">
+                         💥 YOU LOSE 💥 
+                    </div>
+                    <div class="text-yellow-300 text-2xl mt-2">
+                         ${result.result_type.loser_a == userCurrent ? result.bits.player_a_bit :  result.bits.player_b_bit} 🪙 
+                    </div>
+                `;
+        }
+        else{
+            if(result.scores.player_a == 1 && result.scores.player_b == 1 ){ 
+                resultDiv.innerHTML = `
+                    <div class="text-blue-500 drop-shadow-lg">
+                         🎉 Draw - Payback 🎉
+                    </div>
+                    <div class="text-yellow-300 text-2xl mt-2"> 
+                        +${result.result_type.win_draw_a == userCurrent ? result.bits.player_a_bit : result.bits.player_b_bit} 🪙 
+                    </div>
+                `;
+            }
+            else{ 
+                resultDiv.innerHTML = `
+                    <div class="text-pink-500 drop-shadow-lg">
+                         💥 Draw - Payout 💥 
+                    </div>
+                    <div class="text-yellow-300 text-2xl mt-2">  
+                        -${result.result_type.loss_draw_a == userCurrent ? result.bits.player_a_bit :  result.bits.player_b_bit} 🪙 
+                    </div>
+                `;
+            }
+        }
+         
+        announcementContainer.appendChild(resultDiv);
+        setTimeout(() => { 
+            announcementContainer.innerHTML = "";
+            window.location.href = '/Earn/page/football_bit/';
+        }, 5000); 
+        
+    }
+     
+    document.addEventListener('DOMContentLoaded', () => {
+        initWebSocket();  
+        currentPlayer = "{{ player.auth_token }}";  
+        console.log("currentPlayer :", currentPlayer);
+        
+        toggleKickButton(false);
+    });
+    
+
+    function updateKeeperState(keeperState) { 
+        const keeperStanding = document.getElementById('goal-keeper-state-1');
+        const keeperLeft = document.getElementById('goal-keeper-state-2');
+        const keeperRight = document.getElementById('goal-keeper-state-3');
+
+        keeperStanding.style.display = 'none';
+        keeperLeft.style.display = 'none';
+        keeperRight.style.display = 'none';
+        
+        switch(keeperState) {
+            case 'standing':
+                keeperStanding.style.display = 'block';
+                break;
+            case 'left':
+                keeperLeft.style.display = 'block';
+                break;
+            case 'right':
+                keeperRight.style.display = 'block';
+                break;
+            default:
+                keeperStanding.style.display = 'block';
+        }
+    }
+  
+    function resetGameUI() { 
+        document.getElementById('zee-ball').style.transform = 'translate(0,0)';
+        document.getElementById('goal-keeper-state-1').style.display = "block";
+        document.getElementById('goal-keeper-state-2').style.display = "none";
+        document.getElementById('goal-keeper-state-3').style.display = "none";
+        
+        document.getElementById('vertical-value').value = '';
+        document.getElementById('horizontal-value').value = '';
+        document.getElementById('power-value').value = '';
+    }
+    
+//  ##########################################################     Game .Js  #############################
+
+
+    (function() { 
+        var lastTime = 0;
+        var vendors = ['ms', 'moz', 'webkit', 'o'];
+        for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+            window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+            window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] 
+                                    || window[vendors[x]+'CancelRequestAnimationFrame'];
+        }
+    
+        if (!window.requestAnimationFrame)
+            window.requestAnimationFrame = function(callback, element) {
+                var currTime = new Date().getTime();
+                var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+                var id = window.setTimeout(function() { callback(currTime + timeToCall); }, 
+                timeToCall);
+                lastTime = currTime + timeToCall;
+                return id;
+            };
+    
+        if (!window.cancelAnimationFrame)
+            window.cancelAnimationFrame = function(id) {
+                clearTimeout(id);
+            };
+    }());
+ 
+    let waitingForNextRound = false;
+    var verticalBallStopped = false;
+    var horizontalBallStopped = false;
+    var powerBallStopped = false;
+    var x1, x2, x3;
+    var direction;
+    var endTop = 440;
+    var endLeft = 390; 
+    var playerScore = 0; 
+    var timer;
+    var timeLeft = 25;
+    let is_goalMe = false
+
+    var modalElem1, modalElem2, modalElem3, modalElem4, modalElem5;
+    modalElem1 = document.getElementById('modal-1');
+    modalElem2 = document.getElementById('modal-2');
+    modalElem3 = document.getElementById('modal-3');
+    modalElem4 = document.getElementById('modal-4');
+    modalElem5 = document.getElementById('modal-5');  
+     
+    function kick(el, et) {
+        var player, playerImage, canvas, isItOver;
+        isItOver = false;
+
+        function gameLoop() {
+            if (isItOver == false) {
+                window.requestAnimationFrame(gameLoop);
+                player.update();
+                player.render();
+            }
+        }
+        
+        function sprite(options) {
+            var that = {},
+                frameIndex = 0,
+                tickCount = 0,
+                ticksPerFrame = options.ticksPerFrame || 0,
+                numberOfFrames = options.numberOfFrames || 1;
+            
+            that.context = options.context;
+            that.width = options.width;
+            that.height = options.height;
+            that.image = options.image;
+            
+            that.update = function() {
+                tickCount += 1;
+                if (tickCount > ticksPerFrame) {
+                    tickCount = 0; 
+                    if (frameIndex < numberOfFrames - 2) { 
+                        frameIndex += 1;
+                    }
+                    else if (frameIndex == numberOfFrames - 2) {
+                        frameIndex += 1; 
+                        moveBall(el, et); 
+                        keeperJump();
+                    }
+                    else if (frameIndex < numberOfFrames - 1) {
+                        frameIndex += 1;
+                    }
+                    else { 
+                        isItOver = true;
+                    }
+                }
+            };
+            
+            that.render = function() { 
+                that.context.clearRect(0, 0, that.width, that.height);
+                that.context.drawImage(
+                    that.image,
+                    frameIndex * that.width / numberOfFrames,
+                    0,
+                    that.width / numberOfFrames,
+                    that.height,
+                    0, 0,
+                    that.width / numberOfFrames,
+                    that.height);
+            };
+            
+            return that;
+        } 
+    
+        canvas = document.getElementById("kickAnimation");
+        canvas.width = 150;
+        canvas.height = 270; 
+        playerImage = new Image();	
+        
+        player = sprite({
+            context: canvas.getContext("2d"),
+            width: 300,
+            height: 270,
+            image: playerImage,
+            numberOfFrames: 2,
+            ticksPerFrame: 20
+        });
+        
+        playerImage.addEventListener("load", gameLoop);
+        playerImage.src = "/static/football/img/slow-kick-right.png";
+    }
+
+    function keeperJump() {
+        var randomBinary = Math.floor(Math.random()*2);
+        var someTimeAfter = window.setTimeout(function() {
+            keeperJumpCheck(randomBinary, x3); 
+        }, 0);
+    }
+    function keeperJumpCheck(randomBinary, x3){
+        if ((randomBinary == 0) && (x3 >= 0.55)) {
+            document.getElementById('goal-keeper-state-1').style.display = "none";
+            document.getElementById('goal-keeper-state-2').style.display = "block";
+            direction = "left";
+        }
+        else if ((randomBinary == 1) && (x3 >= 0.55)) {
+            document.getElementById('goal-keeper-state-1').style.display = "none";
+            document.getElementById('goal-keeper-state-3').style.display = "block";
+            direction = "right";
+        }
+    }
+
+    function moveBall(el, et) {
+        var path = "M " + "390" + "," + "440" + " "+ el + "," + et;
+        var pathAnimator = new PathAnimator(path);
+        var objToAnimate = document.getElementById('zee-ball');
+        var speed = 0.5;
+        var reverse = false;	
+        var startOffset = 0;
+            
+        pathAnimator.start(speed, step, reverse, startOffset, finish);
+        
+        function step(point, angle) { 
+            objToAnimate.style.cssText = "top:" + point.y + "px;" +
+                                        "left:" + point.x + "px;" +
+                                        "transform:rotate("+ angle +"deg);" +
+                                        "-webkit-transform:rotate("+ angle +"deg);";
+        }
+    
+        function finish() {   
+            finishChecked(endTop, endLeft, direction);
+        }
+    }
+    
+    function finishChecked(endTop, endLeft, direction){
+        
+        
+        const vertical = parseFloat(document.getElementById('vertical-value').value);
+        const horizontal = parseFloat(document.getElementById('horizontal-value').value);
+        const power = parseFloat(document.getElementById('power-value').value); 
+
+        if ([vertical, horizontal, power].some(isNaN)) {
+            console.error('Invalid kick parameters:', {vertical, horizontal, power});
+            return;
+        } 
+        
+        if ((endTop >= 98) && (endTop <= 290) && (endLeft >= 120) && (endLeft <= 720)) {
+                if ((direction == "right") && ((endLeft <= 450) && (endLeft >= 400))) {   
+                    modalElem5.setAttribute("class","modalX active");
+                    playerScore++; 
+                    const kickData = { action: 'kick', vertical: vertical, horizontal: horizontal, power: power, goalMe: true};
+                    socket.send(JSON.stringify(kickData));  
+                }
+                if ((direction == "right") && ((endLeft <= 399) && (endLeft >= 350))) {   
+                    modalElem5.setAttribute("class","modalX active");
+                    playerScore++;  
+                    const kickData = { action: 'kick', vertical: vertical, horizontal: horizontal, power: power, goalMe: true};
+                    socket.send(JSON.stringify(kickData));   
+                }
+                else if ((direction == "right") && ((endLeft <= 349) && (endLeft >= 300))) {   
+                    modalElem5.setAttribute("class","modalX active");
+                    playerScore++;  
+                    const kickData = { action: 'kick', vertical: vertical, horizontal: horizontal, power: power, goalMe: true}; 
+                    socket.send(JSON.stringify(kickData));   
+                }
+                else if ((direction == "right") && ((endLeft <= 299) && (endLeft >= 250))) {   
+                    modalElem5.setAttribute("class","modalX active");
+                    playerScore++;  
+                    const kickData = { action: 'kick', vertical: vertical, horizontal: horizontal, power: power, goalMe: true};
+                    socket.send(JSON.stringify(kickData));  
+                }
+                else if ((direction == "right") && ((endLeft <= 249) && (endLeft >= 200))) {   
+                    modalElem5.setAttribute("class","modalX active");
+                    playerScore++; 
+                    const kickData = { action: 'kick', vertical: vertical, horizontal: horizontal, power: power, goalMe: true};
+                    socket.send(JSON.stringify(kickData));  
+                }
+                else if ((direction == "right") && ((endLeft <= 199) && (endLeft >= 150))) {   
+                    modalElem5.setAttribute("class","modalX active");
+                    playerScore++; 
+                    const kickData = { action: 'kick', vertical: vertical, horizontal: horizontal, power: power, goalMe: true};
+                    socket.send(JSON.stringify(kickData));   
+                }
+                else if ((direction == "right") && ((endLeft <= 149) && (endLeft >= 120))) {   
+                    modalElem5.setAttribute("class","modalX active");
+                    playerScore++;  
+                    const kickData = { action: 'kick', vertical: vertical, horizontal: horizontal, power: power, goalMe: true};
+                    socket.send(JSON.stringify(kickData));  
+                }
+
+                else if ((direction == "left") && ((endLeft >= 451) && (endLeft <= 500))) { 
+                    modalElem5.setAttribute("class","modalX active");
+                    playerScore++; 
+                    const kickData = { action: 'kick', vertical: vertical, horizontal: horizontal, power: power, goalMe: true};
+                    socket.send(JSON.stringify(kickData));   
+                }
+                else if ((direction == "left") && ((endLeft >= 501) && (endLeft <= 550))) { 
+                    modalElem5.setAttribute("class","modalX active");
+                    playerScore++;
+                    const kickData = { action: 'kick', vertical: vertical, horizontal: horizontal, power: power, goalMe: true};
+                    socket.send(JSON.stringify(kickData));    
+                }
+                else if ((direction == "left") && ((endLeft >= 551) && (endLeft <= 600))) { 
+                    modalElem5.setAttribute("class","modalX active");
+                    playerScore++;    
+                    const kickData = { action: 'kick', vertical: vertical, horizontal: horizontal, power: power, goalMe: true};
+                    socket.send(JSON.stringify(kickData));  
+                }
+                else if ((direction == "left") && ((endLeft >= 601) && (endLeft <= 651))) { 
+                    modalElem5.setAttribute("class","modalX active");
+                    playerScore++;    
+                    const kickData = { action: 'kick', vertical: vertical, horizontal: horizontal, power: power, goalMe: true};
+                    socket.send(JSON.stringify(kickData));  
+                } 
+                else if ((direction == "left") && ((endLeft >= 651) && (endLeft <= 720))) { 
+                    modalElem5.setAttribute("class","modalX active");
+                    playerScore++;    
+                    const kickData = { action: 'kick', vertical: vertical, horizontal: horizontal, power: power, goalMe: true};
+                    socket.send(JSON.stringify(kickData));  
+                }
+                else {
+                    modalElem4.setAttribute("class","modalX active");   
+                    const kickData = { action: 'kick', vertical: vertical, horizontal: horizontal, power: power, goalMe: false};
+                    socket.send(JSON.stringify(kickData));  
+                } 
+                
+            }
+            else {
+                modalElem4.setAttribute("class","modalX active"); 
+                const kickData = { action: 'kick', vertical: vertical, horizontal: horizontal, power: power, goalMe: false}; 
+                socket.send(JSON.stringify(kickData));  
+            }   
+        }
+    
+        function moveVerticalSmallBall() {
+            var thing = document.getElementById('vertical-direction-indicator');
+            if (thing.getAttribute('class') == "small-ball one-end") {
+                thing.setAttribute('class','small-ball other-end');
+            }
+            else if (thing.getAttribute('class') == "small-ball other-end") {
+                thing.setAttribute('class','small-ball one-end');
+        }
+    }
+    
+    function moveHorizontalSmallBall() {
+        var thing = document.getElementById('horizontal-direction-indicator');
+        if (thing.getAttribute('class') == "small-ball one-end") {
+            thing.setAttribute('class','small-ball other-end');
+        }
+        else if (thing.getAttribute('class') == "small-ball other-end") {
+            thing.setAttribute('class','small-ball one-end');
+        }
+    }
+
+    function movePowerSmallBall() {
+        var thing = document.getElementById('power-level-indicator');
+        if (thing.getAttribute('class') == "small-ball one-end") {
+            thing.setAttribute('class','small-ball other-end');
+        }
+        else if (thing.getAttribute('class') == "small-ball other-end") {
+            thing.setAttribute('class','small-ball one-end');
+        }
+    }
+    
+    function stopVerticalBall() {
+        var element = document.getElementById('vertical-direction-indicator'),
+            style = window.getComputedStyle(element),
+            top = style.getPropertyValue('top');
+        x1 = parseInt(top.substring(0,3), 10);
+        x1 = (459-x1)/117;
+
+        document.getElementById('vertical-value').value = x1; 
+        element.setAttribute("class", "small-ball");
+        element.style.top = top;
+        verticalBallStopped = true; 
+    }
+
+    function stopHorizontalBall() {
+        var element = document.getElementById('horizontal-direction-indicator'),
+            style = window.getComputedStyle(element),
+            left = style.getPropertyValue('left'); 
+        var leftValue = parseFloat(left.replace('px', '')); 
+        
+        if (leftValue >= 5 && leftValue < 55) {
+            leftValue += 55;
+            left = `${leftValue}px`;  
+        }  
+
+        x2 = parseInt(left.substring(0,3), 10);
+        x2 = (x2-60)/160;
+        
+        document.getElementById('horizontal-value').value = x2; 
+        element.setAttribute("class", "small-ball");
+        element.style.left = left;
+        horizontalBallStopped = true; 
+    }
+
+    function stopPowerBallAndKick() { 
+        var element = document.getElementById('power-level-indicator'),
+            style = window.getComputedStyle(element),
+            right = style.getPropertyValue('right');
+        var rightValue = parseFloat(right.replace('px', '')); 
+
+        if (rightValue >= 10 && rightValue < 60) {
+            rightValue += 60;
+            right = `${rightValue}px`;
+            rightPx = `${rightValue-30}px`;
+        }
+        if(rightValue >= 60 && rightValue < 70){
+            rightValue -= 15;
+            rightPx = `${rightValue}px`;
+        } 
+        if(rightValue >= 70 && rightValue < 90){
+            rightValue -= 15;
+            rightPx = `${rightValue}px`;
+        }  
+        if(rightValue >= 90 && rightValue < 101){
+            rightValue -= 15;
+            rightPx = `${rightValue}px`;
+        }  
+        if(rightValue >= 100 && rightValue < 110){
+            rightValue -= 15;
+            rightPx = `${rightValue}px`;
+        } 
+        if(rightValue >= 110 && rightValue < 120){
+            rightValue -= 15;
+            rightPx = `${rightValue}px`;
+        } 
+        if(rightValue >= 120 && rightValue < 131){
+            rightValue -= 15;
+            rightPx = `${rightValue}px`;
+        }else{
+            rightPx = `${rightValue}px`;
+        }
+
+        x3 = parseInt(right.substring(0,3), 10);
+        x3 = (191-x3)/121;
+        
+        document.getElementById('power-value').value = x3;
+        element.setAttribute("class", "small-ball");
+        element.style.right = rightPx;
+        powerBallStopped = true;
+        
+        var Et, El;
+        Et = 440 - ((0.8 + x1)/1.8)*x3*440 + 0.3*x3*((Math.abs(0.5-x2))/0.5)*440;
+        var stringEt = Et.toString(10);
+        El = 405 + x3*(x2-0.5)*810;
+        var stringEl = El.toString(10);
+                        
+        endTop = Et;
+        endLeft = El;
+        
+        // console.log(`Player ${currentPlayer} - Ball End Position: ${stringEl}, ${stringEt}`);
+        kick(stringEl, stringEt); 
+    }
+
+    var verticalIndicatorOscillate = window.setInterval(moveVerticalSmallBall, 320);
+    var horizontalIndicatorOscillate = window.setInterval(moveHorizontalSmallBall, 320);
+    var powerLevelOscillate = window.setInterval(movePowerSmallBall, 320); 
+ 
+    function kickingProcess(){ 
+        if ((verticalBallStopped == false) && (horizontalBallStopped == false) && (powerBallStopped == false)) {
+            stopVerticalBall();
+        }
+        else if ((verticalBallStopped == true) && (horizontalBallStopped == false) && (powerBallStopped == false)) {
+            stopHorizontalBall();
+        }
+        else if ((verticalBallStopped == true) && (horizontalBallStopped == true) && (powerBallStopped == false)) {
+            stopPowerBallAndKick();
+        } 
+        
+        
+        const vertical = parseFloat(document.getElementById('vertical-value').value);
+        const horizontal = parseFloat(document.getElementById('horizontal-value').value);
+        const power = parseFloat(document.getElementById('power-value').value); 
+
+        if ([vertical, horizontal, power].some(isNaN)) {
+            console.error('Invalid kick parameters:', {vertical, horizontal, power});
+            return;
+        }
+        
+        verticalBallStopped = horizontalBallStopped = powerBallStopped = false;
+        resetIndicators();
+    } 
+    
+    function resetIndicators() {
+        clearInterval(verticalIndicatorOscillate);
+        clearInterval(horizontalIndicatorOscillate);
+        clearInterval(powerLevelOscillate);
+        
+        verticalIndicatorOscillate = setInterval(moveVerticalSmallBall, 320);
+        horizontalIndicatorOscillate = setInterval(moveHorizontalSmallBall, 320);
+        powerLevelOscillate = setInterval(movePowerSmallBall, 320);
+    }
+</script> 
+
+</body>
+</html>

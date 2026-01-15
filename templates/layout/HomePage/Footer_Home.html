@@ -1,0 +1,66 @@
+ {% load static %}
+    
+<script type="text/javascript" src="{% static 'HomePage/js/homePage.js' %}"></script> 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> 
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"> 
+    <script type="text/javascript" src="{% static 'account/js/Account_PostMethod.js' %}"></script>
+    <script type="text/javascript" src="{% static 'account/js/Auth_Api.js' %}"></script> 
+
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+<script> 
+  function openWallet() {
+    window.location.href = `/Menu/page/wallet_page/`;
+  }
+        
+  function openSettings() {
+    window.location.href = `/Menu/page/settings_page/`;
+  }
+        
+
+</script>
+
+<script>
+        function startGameCard() {
+          window.location.href = `/Earn/page/cardgame/`;
+        }
+        
+        function startGameFootBall() {
+          window.location.href = `/Earn/page/football_bit/`;
+        }
+
+        function startGameConnectDot(){
+          window.location.href = `/Earn/page/connectDot_bit_page/`;
+        }
+        
+        function startGameGuessNumber(){
+          window.location.href = `/Earn/page/GuessNumber_page/`;
+        }
+
+        function startGameDiceRoll(){
+          window.location.href = `/Earn/page/diceRoll_game/`;
+        }
+
+        
+        function startGameColorTrade(){
+          window.location.href = `/Earn/page/colorTrade_game/`;
+        }
+        
+        function startGameCrashRocket(){
+          window.location.href = `/Earn/page/crashRocket_game/`;
+        }
+
+        
+        function startGameSpinWheel(){
+          window.location.href = `/Earn/page/spinWheel_game/`;
+        }
+    </script>
+
+
+<!-- startGameSpinWheel -->
+    <audio id="flipSound" src="{% static 'sounds/flip.mp3' %}"></audio>
+    <audio id="tickSound" src="{% static 'sounds/beep.mp3' %}"></audio> 
+ 
+</body>

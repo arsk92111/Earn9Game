@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title> Dice Roll Game - Earn9</title> 
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+    {% load static %}
+    <script src="https://cdn.tailwindcss.com"></script> 
+    <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/htmx-ext-ws@2.0.2" integrity="sha384-vuKxTKv5TX/b3lLzDKP2U363sOAoRo5wSvzzc3LJsbaQRSBSS+3rKKHcOx5J8doU" crossorigin="anonymous"></script> 
+    <link rel="stylesheet" href="{% static 'diceRoll/css/dicegame.css' %}">    
+    {% include 'layout/HomePage/Header_Home.html' %}
+
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>  
+            @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+            
+            :root {
+                --neon-green: #39ff14;
+                --neon-blue: #00e5ff;
+                --neon-red: #ff073a;
+                --neon-yellow: #fff01f;
+                --neon-purple: #bc13fe;
+            }
+            
+            * {
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation;
+            }
+       
+            .neon-border {
+                border: 2px solid var(--neon-green);
+                box-shadow: 0 0 10px var(--neon-green), 0 0 20px var(--neon-green);
+                border-radius: 12px;
+            }
+            
+            .neon-box {
+                border: 2px solid var(--neon-blue);
+                box-shadow: 0 0 8px var(--neon-blue), inset 0 0 8px var(--neon-blue);
+                border-radius: 12px;
+            }
+            
+            .neon-button {
+                border: 2px solid var(--neon-green);
+                box-shadow: 0 0 8px var(--neon-green), inset 0 0 8px var(--neon-green);
+                transition: all 0.3s;
+            }
+            
+            .neon-button:active {
+                box-shadow: 0 0 15px var(--neon-green), inset 0 0 15px var(--neon-green);
+                transform: translateY(-2px);
+            }
+            
+            .selected {
+                box-shadow: 0 0 15px var(--neon-yellow), inset 0 0 15px var(--neon-yellow);
+                transform: scale(1.03);
+            }
+
+            
+            .bg-selected {
+                box-shadow: 0 0 15px var(--neon-yellow), inset 0 0 15px var(--neon-yellow);
+                transform: scale(1.03);
+            }
+            
+            .winner {
+                animation: winner-glow 1.5s infinite alternate;
+            }
+            
+            @keyframes winner-glow {
+                from {
+                    box-shadow: 0 0 5px var(--neon-yellow), inset 0 0 5px var(--neon-yellow);
+                }
+                to {
+                    box-shadow: 0 0 20px var(--neon-yellow), 0 0 30px var(--neon-yellow);
+                }
+            }
+ 
+            .coin-btn {
+                background: linear-gradient(to bottom, #f9d423, #ff4e50);
+                color: black;
+                font-weight: bold;
+                border-radius: 50px;
+                padding: 6px 10px;
+                transition: all 0.3s;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                font-size: 12px;
+                min-width: 60px;
+            }
+            
+            .coin-btn:active {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+            }
+            
+            .side {
+                position: relative;
+                padding: 10px 5px;
+                transition: all 0.3s;
+                cursor: pointer;
+                overflow: hidden;
+            }
+            
+            .side:active {
+                transform: translateY(-3px);
+            }
+            
+            .exact-number {
+                transition: all 0.3s;
+                cursor: pointer;
+                padding: 5px;
+            }
+            
+            .exact-number:active {
+                transform: scale(1.05);
+            }
+            
+            .rolling { 
+                animation: roll 0.5s infinite;
+            }
+            
+            @keyframes roll {
+                0% { transform: rotate(0deg); }
+                25% { transform: rotate(90deg); }
+                50% { transform: rotate(180deg); }
+                75% { transform: rotate(270deg); }
+                100% { transform: rotate(360deg); }
+            }
+            
+            .player-chip {
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 8px;
+                font-weight: bold;
+                box-shadow: 0 2px 3px rgba(0,0,0,0.3);
+            }
+            
+            .floating-chip {
+                position: absolute;
+                animation: float 3s ease-in-out;
+            }
+            
+            @keyframes float {
+                0% { transform: translateY(0) translateX(0); opacity: 1; }
+                100% { transform: translateY(-80px) translateX(20px); opacity: 0; }
+            }
+            
+            .result-announcement {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 100;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.5s;
+            }
+            
+            .result-content {
+                background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+                padding: 20px;
+                border-radius: 15px;
+                text-align: center;
+                border: 3px solid var(--neon-yellow);
+                box-shadow: 0 0 15px var(--neon-yellow);
+                max-width: 90%;
+                width: 100%;
+            }
+            
+            .win-text {
+                font-size: 1.8rem;
+                color: var(--neon-yellow);
+                text-shadow: 0 0 8px var(--neon-yellow);
+                margin-bottom: 15px;
+                animation: pulse 1.5s infinite;
+            }
+            
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
+            
+            .dice-container {
+                display: flex;
+                justify-content: center;
+                gap: 15px;
+                margin: 15px 0;
+            }
+            
+            .dice-result {
+                width: 50px;
+                height: 50px;
+                background: white;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.8rem;
+                font-weight: bold;
+                box-shadow: 0 0 10px rgba(255,255,255,0.8);
+            }
+            
+            .fade-in {
+                animation: fadeIn 0.5s forwards;
+            }
+            
+            .fade-out {
+                animation: fadeOut 0.5s forwards;
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            
+            @keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+            
+            .player-badge {
+                width: 45px;
+                height: 45px;
+                border-radius: 50%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                padding: 5px;
+                text-align: center;
+            }
+            
+            .chip-container {
+                position: absolute;
+                top: 5px;
+                left: 5px;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 3px;
+                max-width: calc(100% - 10px);
+            }
+             
+            .mobile-header {
+                padding: 2px; 
+                width: 100%;
+                max-width: 380px;
+            }
+            
+            .mobile-container {
+                max-width: 100%;
+                padding: 5px; 
+            }
+            
+            .plate-container {
+                position: relative;
+                width: 240px;
+                height: 150px;
+                margin: 0 auto 15px;
+            }
+            
+            .side-container {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+                margin-bottom: 10px;
+            }
+            
+            .exact-container {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 5px;
+            }
+            
+            .bet-controls {
+                padding: 4px;
+            }
+            
+            .amount-groups-wrapper {
+                min-height: 40px;
+            }
+            
+            .nav-arrow {
+                padding: 6px 10px;
+                font-size: 14px;
+            }
+            
+            .balance-container {
+                position: fixed;
+                bottom: 10px;
+                right: 10px;
+                padding: 7px 10px;
+                border-radius: 20px;
+                z-index: 50;
+            }
+             
+            .hide-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+             
+            .hide-scrollbar {
+                -ms-overflow-style: none;  /* IE and Edge */
+                scrollbar-width: none;  /* Firefox */
+            }
+            
+
+</style>
+
+<style>
+    .glass {
+        width: 160px;
+        height: 160px; 
+        margin: 0 auto;
+        position: relative;
+        border-radius: 50%;
+        background: radial-gradient(circle at center, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 70%, rgba(255, 255, 255, 0.02) 100%);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: inset 0 10px 15px rgba(255, 255, 255, 0.15),
+                    inset 0 -5px 10px rgba(0, 0, 0, 0.1),
+                    0 10px 30px rgba(0, 0, 0, 0.25);
+        overflow: hidden;
+        transform: rotateX(20deg); /* Dome tilt illusion */
+    }
+        
+    .glass::before {
+        content: "";
+        position: absolute;
+        top: 60%;
+        left: 10%;
+        width: 80%;
+        height: 40%;
+        background: radial-gradient(ellipse at top left, rgba(255, 255, 255, 0.4), transparent);
+        border-radius: 50%;
+        z-index: 2;
+        pointer-events: none;
+    }
+        
+    .glass::after {
+        content: "";
+        position: absolute;
+        top: 15%;
+        left: 20%;
+        width: 60%;
+        height: 5%;
+        background: linear-gradient(to right, rgba(255,255,255,0.2), rgba(255,255,255,0));
+        transform: rotate(342deg);
+        border-radius: 50%;
+        z-index: 2;
+    }
+    .plate-container {
+        position: relative;
+        width: 200px;
+        height: 160px;
+        margin: 0 auto;
+    }
+
+    .plate-base {
+        position: absolute;
+        top: 75%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 200px;
+        height: 40px;
+        background: radial-gradient(ellipse at center, #fca5a559, rgb(0 0 0 / 66%));
+        border-radius: 50%;
+        box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.2), 0 4px 10px rgb(84 37 37);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        z-index: 0;
+    }
+    .plate-base::before {
+        content: "";
+        position: absolute;
+        top: 4px;
+        left: 10%;
+        width: 80%;
+        height: 10px;
+        background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.4), transparent);
+        border-radius: 50%;
+        z-index: 1;
+        }
+
+    .dice {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      top: 55%;
+      left: 40%;
+      transform: translate(-50%, -50%);
+    }  
+    .wood-bg {  
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-blend-mode: overlay;
+    }
+
+    .glass-overlay {
+        background-color: rgba(0, 0, 0, 0.25);
+        backdrop-filter: blur(4px);
+    }
+    
+            .timer-container {    
+                position: relative;
+                overflow: hidden;
+            }
+
+            .timer-container::before {
+                content: '';
+                position: absolute;
+                inset: 0;  
+            }
+   
+    .player-chip.your-bet {
+        border: 2px solid gold;
+        box-shadow: 0 0 10px gold;
+    }
+
+    .exact-total {
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        background: rgba(0,0,0,0.7);
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            10% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1.1);
+            }
+        }
+
+    .animate-fade-in-out {
+        animation: fadeInOut 2s ease-in-out forwards;
+        z-index: 50;
+    }
+
+    .winner {
+        border: 4px solid gold !important;
+        box-shadow: 0 0 20px gold;
+    }
+    .winner-exact {
+        border: 4px solid rgb(255, 0, 0) !important;
+        box-shadow: 0 0 20px rgb(255, 0, 0);
+    }
+    
+    .multiplier-badge {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background: gold;
+        color: black;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 14px;
+        z-index: 20;
+        box-shadow: 0 0 5px rgba(0,0,0,0.5);
+    }
+    .multiplier-chip { 
+        background-color: 'gold';
+        color: 'black';
+        padding: '2px 5px';
+        border-radius: '10px';
+        font-weight: 'bold';
+        font-size: '12px';
+        z-index: '20';
+    }
+    .player-chip.more-chip {
+        background-color: #f1f1f1;
+        color: #000;
+        font-weight: bold;
+        border: 1px dashed #aaa;
+    }
+  
+                    /*  */
+    .chip-row {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 4px;
+            justify-content: center;
+            margin-top: 4px;
+            overflow-x: auto; /* Optional: allow scroll if too many chips */
+        }
+
+        /* Optional: Hide scrollbar on mobile */
+    .chip-row::-webkit-scrollbar {
+            display: none;
+        }
+    .chip-row {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    .total-text {
+        display: none; /* Initially hidden */
+        }
+    .total-display {
+        display: none; /* Hidden by default */
+    } 
+    .total-displayT {
+        display: none; /* Hidden by default */
+    }
+      
+            
+
+</style>
+ 
+
+</head>
+<body> 
+
+    <div class="text-white neon-box"> 
+            <div class="mobile-header ">
+                <div class="neon-border py-1 px-1 mb-1">
+                    <div class="timer-container flex justify-center items-center space-x-2">
+                        <h1 class="text-xl font-bold"> 
+                            <i class="fas fa-dice mr-2 text-purple-400"></i> LIVE DiCE 
+                            <span id="timer" class="text-xl font-bold bg-gray-900 px-3 py-1 rounded-lg mx-1">20</span> 
+                            <i class="fas fa-bolt text-yellow-400"></i>
+                        </h1>
+                    </div>
+                </div>
+                
+                <div class="absolute plate-container">
+                    <div class="glass">
+                    <img src="{% static '/diceRoll/img/dice_1.png' %}" class="dice" id="dice1" />
+                    <img src="{% static '/diceRoll/img/dice_6.png' %}" class="dice" id="dice2" style="left: 70%; top: 60%"/>
+                    </div>
+                    <div class="plate-base"></div>
+                </div> 
+            </div>
+            
+            <div class="mobile-container">  
+                <div class="neon-box bet-controls mb-3">
+                    <button onclick="confirmBet()" id="confirm-bet-btn"
+                        class="neon-button w-full mb-2 py-2 text-md font-bold">
+                        <i class="fas fa-paper-plane mr-1"></i>PLACE BET: <span id="current-bid" class="font-bold">0</span> 🪙
+                    </button>
+                
+                    <div class="flex items-center gap-1">
+                        <button onclick="changeAmountPage(-1)" 
+                                class="nav-arrow prev-arrow px-3 py-2 rounded-lg bg-gray-700 text-sm">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        
+                        <div class="amount-groups relative w-full overflow-hidden hide-scrollbar">
+                            <div class="amount-groups-wrapper flex transition-transform duration-300 ease-in-out" style="transform: translateX(0);">
+                                <div class="amount-group shrink-0 w-full flex justify-center gap-1" data-group="0">
+                                    <button data-amount="20" class="coin-btn" onclick="addToBet(20)">+20</button>
+                                    <button data-amount="100" class="coin-btn" onclick="addToBet(100)">+100</button>
+                                    <button data-amount="500" class="coin-btn" onclick="addToBet(500)">+500</button> 
+                                </div>
+                                
+                                <div class="amount-group shrink-0 w-full flex justify-center gap-1" data-group="1">
+                                    <button data-amount="1000" class="coin-btn" onclick="addToBet(1000)">1K</button>
+                                    <button data-amount="5000" class="coin-btn" onclick="addToBet(5000)">5K</button>
+                                    <button data-amount="10000" class="coin-btn" onclick="addToBet(10000)">10K</button> 
+                                </div>
+                                
+                                <div class="amount-group shrink-0 w-full flex justify-center gap-1" data-group="2">
+                                    <button data-amount="20000" class="coin-btn" onclick="addToBet(20000)">20K</button>
+                                    <button data-amount="50000" class="coin-btn" onclick="addToBet(50000)">50K</button>
+                                    <button data-amount="100000" class="coin-btn" onclick="addToBet(100000)">100K</button> 
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button onclick="changeAmountPage(1)" 
+                                class="nav-arrow next-arrow px-3 py-2 rounded-lg bg-gray-700 text-sm">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="side-container"> 
+                    <div id="DOWN-side" onclick="selectSide('down')" class="side rounded-xl text-center bg-gradient-to-br from-green-800 via-green-700 to-green-600">
+                        <div class="chip-container" id="players-group-DOWN"></div> 
+                        <span class="total-display"><span class="total-text">Total: </span><span id="total-bet-amount-DOWN">0</span></span>
+                        <div class="text-sm font-bold tracking-wider mt-1">2 - 6</div>
+                        <div class="text-xs opacity-80">1:1</div>
+                        <div class="text-sm mt-1 font-bold">DOWN</div>   
+                    </div> 
+                    
+                    <div id="MIDDLE-side" onclick="selectSide('middle')" class="side rounded-xl text-center bg-gradient-to-br from-blue-800 via-blue-700 to-blue-600">
+                        <div class="chip-container" id="players-group-MIDDLE"></div> 
+                        <span class="total-display"><span class="total-text">Total: </span><span id="total-bet-amount-MIDDLE">0</span></span>
+                        <div class="text-sm font-bold tracking-wider mt-1">7</div>
+                        <div class="text-xs opacity-80">1:4</div>
+                    </div> 
+                    
+                    <div id="UP-side" onclick="selectSide('up')" class="side rounded-xl text-center bg-gradient-to-br from-red-800 via-red-700 to-red-600">
+                        <div class="chip-container" id="players-group-UP"></div>
+                        <span class="total-display"><span class="total-text">Total: </span><span id="total-bet-amount-UP">0</span></span>
+                        <div class="text-sm font-bold tracking-wider mt-1">8 - 12</div>
+                        <div class="text-xs opacity-80">1:1</div>
+                        <div class="text-sm mt-1 font-bold">UP</div>
+                    </div>
+                </div>
+                
+                <!-- Exact Numbers -->
+                <div class="neon-box p-2 mt-2"> 
+                    <div class="exact-container">
+                        <div id="dice-show-2" onclick="selectExactNumber(2)" class="exact-number rounded-lg bg-gradient-to-b from-amber-600 via-amber-500 to-amber-400 text-black text-center">
+                            <div class="text-sm font-bold">2</div>
+                            <small class="text-2xs opacity-80">1:26</small>
+                        </div>
+                        <div id="dice-show-3" onclick="selectExactNumber(3)" class="exact-number rounded-lg bg-gradient-to-b from-amber-600 via-amber-500 to-amber-400 text-black text-center">
+                            <div class="text-sm font-bold">3</div>
+                            <small class="text-2xs opacity-80">1:12</small>
+                        </div>
+                        <div id="dice-show-4" onclick="selectExactNumber(4)" class="exact-number rounded-lg bg-gradient-to-b from-amber-600 via-amber-500 to-amber-400 text-black text-center">
+                            <div class="text-sm font-bold">4</div>
+                            <small class="text-2xs opacity-80">1:8</small>
+                        </div>
+                        <div id="dice-show-5" onclick="selectExactNumber(5)" class="exact-number rounded-lg bg-gradient-to-b from-amber-600 via-amber-500 to-amber-400 text-black text-center">
+                            <div class="text-sm font-bold">5</div>
+                            <small class="text-2xs opacity-80">1:6</small>
+                        </div>
+                        <div id="dice-show-6" onclick="selectExactNumber(6)" class="exact-number rounded-lg bg-gradient-to-b from-amber-600 via-amber-500 to-amber-400 text-black text-center">
+                            <div class="text-sm font-bold">6</div>
+                            <small class="text-2xs opacity-80">1:5</small>
+                        </div>
+                        <div id="dice-show-7" onclick="selectExactNumber(7)" class="exact-number rounded-lg bg-gradient-to-b from-amber-600 via-amber-500 to-amber-400 text-black text-center">
+                            <div class="text-sm font-bold">7</div>
+                            <small class="text-2xs opacity-80">1:4</small>
+                        </div>
+                        <div id="dice-show-8" onclick="selectExactNumber(8)" class="exact-number rounded-lg bg-gradient-to-b from-amber-600 via-amber-500 to-amber-400 text-black text-center">
+                            <div class="text-sm font-bold">8</div>
+                            <small class="text-2xs opacity-80">1:5</small>
+                        </div>
+                        <div id="dice-show-9" onclick="selectExactNumber(9)" class="exact-number rounded-lg bg-gradient-to-b from-amber-600 via-amber-500 to-amber-400 text-black text-center">
+                            <div class="text-sm font-bold">9</div>
+                            <small class="text-2xs opacity-80">1:6</small>
+                        </div>
+                        <div id="dice-show-10" onclick="selectExactNumber(10)" class="exact-number rounded-lg bg-gradient-to-b from-amber-600 via-amber-500 to-amber-400 text-black text-center">
+                            <div class="text-sm font-bold">10</div>
+                            <small class="text-2xs opacity-80">1:8</small>
+                        </div>
+                        <div id="dice-show-11" onclick="selectExactNumber(11)" class="exact-number rounded-lg bg-gradient-to-b from-amber-600 via-amber-500 to-amber-400 text-black text-center">
+                            <div class="text-sm font-bold">11</div>
+                            <small class="text-2xs opacity-80">1:12</small>
+                        </div>
+                        <div id="dice-show-12" onclick="selectExactNumber(12)" class="exact-number rounded-lg bg-gradient-to-b from-amber-600 via-amber-500 to-amber-400 text-black text-center">
+                            <div class="text-sm font-bold">12</div>
+                            <small class="text-2xs opacity-80">1:26</small>
+                        </div>  
+                    </div>
+                </div> 
+            </div>
+            
+            <div id="result-announcement" class="fixed inset-0 pointer-events-none z-50"></div>
+                
+    </div>
+    
+<script> 
+    let multiplierInfo = null;
+    let balance = 0;
+    let currentBid = 0;
+    let selectedSide = null;
+    let selectedExactNumber = null;
+    let currentRoundId = null;
+    let timerValue = 20;
+    let timerInterval;
+    let currentPhase = 'bidding';
+    let isConnecting = false;
+    let currentAmountGroup = 0;  
+    let playerBids = { down: [], middle: [], up: [], exact: {} };
+    
+    const SIDE_MAP = { down: 'Down', middle: 'Middle', up:'Up' };
+    const dice1 = document.getElementById("dice1");
+    const dice2 = document.getElementById("dice2"); 
+     
+
+    const diceFaces = [
+        "{% static '/diceRoll/img/dice_1.png' %}", // Dice 1
+        "{% static '/diceRoll/img/dice_2.png' %}", // Dice 2
+        "{% static '/diceRoll/img/dice_3.png' %}", // Dice 3
+        "{% static '/diceRoll/img/dice_4.png' %}", // Dice 4
+        "{% static '/diceRoll/img/dice_5.png' %}", // Dice 5
+        "{% static '/diceRoll/img/dice_6.png' %}"  // Dice 6
+    ];
+      
+    async function fetchBalance() {
+        try {
+            const response = await fetch('/Earn/api/my_profile/', {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem("access_token")}`
+                }
+            });
+            const data = await response.json();
+            balance = data?.data?.coins; 
+        } catch (error) {
+            console.error('Balance fetch failed:', error);
+        }
+    }
+
+    fetchBalance();
+ 
+    document.addEventListener('DOMContentLoaded', () => {
+        connectWebSocket();
+         
+        const balanceElement = balance;
+        if (balanceElement) {
+            balance = parseInt(balanceElement.textContent) || 0;
+            updateCurrentBidDisplay();
+        }
+        
+        document.querySelectorAll('.coin-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const amount = parseInt(btn.dataset.amount);
+                if (currentBid + amount > balance) { 
+                    NotificationHandlerGet.showError(`Insufficient balance!!`);
+                    return;
+                }
+                currentBid += amount;
+                updateCurrentBidDisplay();
+            });
+        });
+    });
+    
+    function connectWebSocket() {
+        if (isConnecting) return;
+        
+        isConnecting = true;
+        socket = new WebSocket(
+            (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + 
+            window.location.host + '/ws/dice_game/live_dice_game/'
+        );
+
+        socket.onopen = () => {
+            isConnecting = false;
+            reconnectAttempts = 0;
+            console.log('✅ WebSocket connected'); 
+            currentPlayerId = "{{ obj_player.user.auth_token }}"; 
+            setTimeout(() => sendSocket({ action: 'get_initial_state' }), 500);
+        };
+
+        socket.onclose = (e) => {
+            isConnecting = false;
+            console.error('WebSocket disconnected. Retrying...');
+            reconnectAttempts++;
+            const delay = Math.min(3000 * reconnectAttempts, 3000);
+            setTimeout(connectWebSocket, delay);
+        };
+
+        socket.onerror = (e) => {
+            console.error("WebSocket error:", e);
+            socket.close();
+        };
+
+        socket.onmessage = (e) => {
+            try {
+                const data = JSON.parse(e.data);
+                handleSocketMessage(data);
+            } catch (error) {
+                console.error("Message parsing error:", error);
+            }
+        };
+    }
+    
+    function sendSocket(data) {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            try {
+                socket.send(JSON.stringify(data));
+            } catch (error) { 
+                NotificationHandlerGet.showError(`Error sending WebSocket message:${error}`);
+            }
+        } else { 
+            NotificationHandlerGet.showError(`WebSocket not connected. Message not sent :${data}`);
+        }
+    }
+     
+    function handleError(data) {
+        const errorMap = {
+            "Failed to initialize game": "Game is restarting...",
+            "Invalid round": "New round starting...",
+            "Insufficient balance": "Add coins to play"
+        };
+        
+        const message = errorMap[data.message]; 
+        if (message === undefined){
+            return
+            // NotificationHandlerGet.showSuccess(`New Round Running Up!`);
+        }else{
+            NotificationHandlerGet.showError(` ${data.message.includes("Failed") ? 'warning' : 'error'}:${message}`);
+        }
+         
+    }
+  
+    function handleSocketMessage(data) {
+        const handlers = {
+            'initial_state': handleInitialState,
+            'timer_update': handleTimerUpdate,
+            'bids_update': handleBidsUpdate,
+            'results': handleResults,
+            'round.start': handleNewRound,
+            'error': handleError,
+            'balance_update': handleBalanceUpdate,
+        };
+
+        if (data.type in handlers) {
+            handlers[data.type](data);
+        }
+    }
+    
+    function handleBalanceUpdate(data) {
+        balance = data.balance;
+        const balanceEl = document.getElementById('balance-display');
+        if (balanceEl) balanceEl.textContent = balance;
+    }
+
+    function handleInitialState(data) { 
+        currentRoundId = data.round_id;
+        timerValue = data.timer.remaining;
+        currentPhase = data.timer.phase;
+
+        const currentUsername = localStorage.getItem("auth_token"); 
+
+        updateTimerDisplay();    
+        if (data.bids) {
+            updateTotals(data.bids.totals);
+            updateUserBets(data.bids.user_bets);
+            displayParticipants(data.bids.participants);
+        } 
+    }
+
+    function displayParticipants(participants) {
+        const currentUsername = localStorage.getItem("auth_token"); 
+        document.querySelectorAll('.player-chip:not(.user-exact-chip)').forEach(chip => chip.remove());
+ 
+        const sideGroups = {};
+        const exactParticipants = [];
+
+        participants.forEach(participant => {
+            if (participant.type === 'side') {
+                if (!sideGroups[participant.position]) {
+                    sideGroups[participant.position] = [];
+                }
+                sideGroups[participant.position].push(participant);
+            } else if (participant.type === 'exact') {
+                exactParticipants.push(participant);
+            }
+        });
+ 
+        Object.entries(sideGroups).forEach(([position, group]) => {
+            const container = document.getElementById(`players-group-${position}`);
+            if (!container) return;
+ 
+            const sideElement = document.getElementById(`${position}-side`);
+            if (sideElement) {
+                sideElement.classList.add('selected');
+            }
+
+            const maxToShow = 3;
+            const visibleParticipants = group.slice(0, maxToShow);
+            const remainingCount = group.length - visibleParticipants.length;
+
+            visibleParticipants.forEach(participant => {
+                const chip = document.createElement('div');
+                const isCurrentUser = participant.auth_token === currentUsername;
+
+                chip.className = `player-chip ${isCurrentUser ? 'user-chip' : 'other-user-chip'}`;
+                const displayText = isCurrentUser ? "YOU" : participant.fullname;
+                const shortName = displayText.length > 8 ? displayText.substring(0, 5) + "..." : displayText;
+
+                chip.innerHTML = `<div>${shortName}<br>${participant.amount}</div>`;
+                container.appendChild(chip);
+            });
+
+            if (remainingCount > 0) {
+                const moreChip = document.createElement('div');
+                moreChip.className = 'player-chip more-chip';
+                moreChip.innerHTML = `<div>+${remainingCount}</div>`;
+                container.appendChild(moreChip);
+            }
+        });
+ 
+        const exactGroups = {};
+        exactParticipants.forEach(participant => {
+            if (!exactGroups[participant.position]) {
+                exactGroups[participant.position] = [];
+            }
+            exactGroups[participant.position].push(participant);
+        });
+
+        // Handle exact chips (with +N logic)
+        Object.entries(exactGroups).forEach(([position, group]) => {
+            const container = document.getElementById(`dice-show-${position}`);
+            if (!container) return;
+
+            container.classList.add('selected'); 
+            const existingChipRow = container.querySelector('.chip-row');
+            if (existingChipRow) existingChipRow.remove();
+ 
+            const chipRow = document.createElement('div');
+            chipRow.className = 'chip-row';
+
+            const maxToShow = 3;
+            const visibleParticipants = group.slice(0, maxToShow);
+            const remainingCount = group.length - visibleParticipants.length;
+
+            visibleParticipants.forEach(participant => {
+                const chip = document.createElement('div');
+                const isCurrentUser = participant.auth_token === currentUsername;
+
+                chip.className = `player-chip ${isCurrentUser ? 'user-chip user-exact-chip' : 'other-user-chip user-exact-chip'}`;
+                const displayText = isCurrentUser ? "YOU" : participant.fullname;
+                const shortName = displayText.length > 8 ? displayText.substring(0, 5) + "..." : displayText;
+
+                chip.innerHTML = `<div>${shortName}<br>${participant.amount}</div>`;
+                chipRow.appendChild(chip);
+            });
+
+            if (remainingCount > 0) {
+                const moreChip = document.createElement('div');
+                moreChip.className = 'player-chip more-chip user-exact-chip';
+                moreChip.innerHTML = `<div>+${remainingCount}</div>`;
+                chipRow.appendChild(moreChip);
+            }
+
+            container.appendChild(chipRow);
+        });
+
+    }
+
+    function handleTimerUpdate(data) {
+        timerValue = data.timer;
+        currentPhase = data.phase;
+        updateTimerDisplay(); 
+        
+        const bettingEnabled = currentPhase === 'bidding';
+        setBettingEnabled(bettingEnabled);
+        
+        if (currentPhase === 'results' && timerValue === 8) { 
+            multiplierInfo = data.multiplier_info; 
+            console.log("multiplierInfo :", data.multiplier_info); 
+            updateMultiplierDisplay();
+            startRollingAnimation();   
+        }
+  
+    }
+    
+    function setBettingEnabled(enabled) { 
+        document.querySelectorAll('.side').forEach(el => {
+            el.style.opacity = enabled ? 1 : 0.6;
+            el.style.pointerEvents = enabled ? 'auto' : 'none';
+        });
+         
+        document.querySelectorAll('.exact-number').forEach(el => {
+            el.style.opacity = enabled ? 1 : 0.6;
+            el.style.pointerEvents = enabled ? 'auto' : 'none';
+        }); 
+        document.querySelectorAll('.coin-btn').forEach(btn => {
+            btn.disabled = !enabled;
+        });
+        document.getElementById('confirm-bet-btn').disabled = !enabled; 
+        updateMultiplierDisplay();
+        
+    }
+
+    function handleNewRound() {
+        resetRound();
+        setBettingEnabled(true);  
+        document.querySelectorAll('.multiplier-badge').forEach(badge => badge.remove());
+        sendSocket({ action: 'get_state' });
+    }
+ 
+    function updateTimerDisplay() {
+        document.getElementById('timer').textContent = timerValue;
+        
+        if (timerValue <= 5) {
+            document.getElementById('timer').classList.add('bg-red-700');
+            document.getElementById('timer').classList.remove('bg-gray-900');
+        } else {
+            document.getElementById('timer').classList.remove('bg-red-700');
+            document.getElementById('timer').classList.add('bg-gray-900');
+        }
+    }
+    
+    function handleBidsUpdate(data) { 
+        if (data.totals) updateTotals(data.totals);
+        if (data.user_bets) updateUserBets(data.user_bets);
+        if (data.participants) displayParticipants(data.participants);
+         
+    } 
+    
+    function updateMultiplierDisplay() {    
+        document.querySelectorAll('.multiplier-badge').forEach(badge => badge.remove());
+        
+        if (multiplierInfo) { 
+            const jackpot1 = multiplierInfo.exact_jackpots.number1;
+            const jackpot2 = multiplierInfo.exact_jackpots.number2;
+            const multiplier1 = multiplierInfo.multipliers.number1;
+            const multiplier2 = multiplierInfo.multipliers.number2;
+             
+            const multiplierMap = {};
+            multiplierMap[jackpot1] = multiplier1;
+            multiplierMap[jackpot2] = multiplier2;
+             
+            for (let num = 2; num <= 12; num++) {
+                const exactElement = document.getElementById(`dice-show-${num}`);
+                if (exactElement) {  
+                    if (multiplierMap[num]) {
+                    const exactElementBg = document.getElementById(`dice-show-${multiplierMap[num]}`);
+                    exactElement.classList.add("bg-selected");
+                        const badge = document.createElement('div');
+                        badge.className = 'multiplier-badge multiplier-chip';
+                        badge.textContent = `${multiplierMap[num]}x`;
+                        
+                        badge.style.position = 'absolute';
+                        badge.style.top = '5px';
+                        badge.style.right = '5px';
+
+                        badge.style.backgroundColor = 'gold';
+                        badge.style.color = 'black';
+                        badge.style.padding = '2px 5px';
+                        badge.style.borderRadius = '10px';
+                        badge.style.fontWeight = 'bold';
+                        badge.style.fontSize = '12px';
+                        badge.style.zIndex = '20';
+                        
+                        exactElement.appendChild(badge);
+                    }
+                }
+            } 
+        }
+    }
+ 
+    function updateUserBets(user_bets) {  
+        document.querySelectorAll('.user-exact-chip').forEach(chip => chip.remove());
+    }
+
+    function handlePhaseUpdate(data) {
+        currentPhase = data.phase;
+        if (data.phase === 'rolling') {
+            rollDice();
+        }
+    }
+  
+    function handleResults(data) {   
+        setTimeout(() => { 
+            dice1.style.top = "55%";
+            dice2.style.top = "60%";
+            dice1.style.left = "40%";
+            dice2.style.left = "70%";
+
+            dice1.src = diceFaces[data.dice1 - 1];
+            dice2.src = diceFaces[data.dice2 - 1];
+            showDiceResults(data);   
+        }, 5000);
+    }
+   
+    function showDiceResults(data) {    
+        const winningSide = data.winning_side.toLowerCase();
+        document.querySelectorAll('.side').forEach(side => {
+            side.classList.remove('winner');
+        });
+        document.getElementById(`${winningSide.toUpperCase()}-side`).classList.add('winner'); 
+
+        document.querySelectorAll('.exact-number').forEach(exact => {
+            exact.classList.remove('winner-exact');
+        });
+        if(data.total){
+            document.getElementById(`dice-show-${data.total}`).classList.add('winner-exact'); 
+        }
+         
+        const announcementContainer = document.getElementById("result-announcement");
+        announcementContainer.innerHTML = "";
+        const currentUsernamePlayer = localStorage.getItem("auth_token");
+          
+        data.player_results.forEach(player => { 
+                const isCurrentUser = player.auth_token === currentUsernamePlayer; 
+                const resultDiv = document.createElement('div');
+                resultDiv.className = `absolute text-center text-white font-bold animate-fade-in-out`;  
+                
+                if (isCurrentUser && player.won) {  
+                    resultDiv.classList.add("text-4xl", "p-4");
+                    resultDiv.style.top = "40%";
+                    resultDiv.style.left = "50%";
+                    resultDiv.style.transform = "translate(-50%, -50%)"; 
+                    console.log("isCurrentUser && player.won :", player.won);
+                    const netAmount = player.amount_won_loss;
+                        resultDiv.innerHTML = `
+                            <div class="text-green-400 text-3xl">
+                               🎉 YOU WIN! 🎉
+                            </div>
+                            <div class="text-2xl mt-2">
+                                +${netAmount.toLocaleString()} 🪙
+                            </div>
+                        `;
+                } 
+                else if(isCurrentUser && !player.won) { 
+                    console.log("not && player.won :", player.won);
+                    resultDiv.classList.add("text-4xl", "p-4");
+                    resultDiv.style.top = "40%";
+                    resultDiv.style.left = "50%";
+                    resultDiv.style.transform = "translate(-50%, -50%)"; 
+
+                    const netAmount = player.amount_won_loss;
+                        resultDiv.innerHTML = `
+                            <div class="text-red-500 text-3xl">
+                                💥 YOU LOSE 💥
+                            </div>
+                            <div class="text-2xl mt-2">
+                                -${netAmount.toLocaleString()} 🪙
+                            </div>
+                        `;
+                }
+                
+                announcementContainer.appendChild(resultDiv);
+            });
+        
+        setTimeout(() => { 
+            announcementContainer.innerHTML = "";
+            window.location.href = '/Earn/page/diceRoll_game/';
+        }, 5000); 
+  
+    }
+  
+    function confirmBet() { 
+        if (!selectedSide && !selectedExactNumber) {
+            showToast('Please select a side or exact number!');
+            return;
+        }
+        
+        if (currentBid <= 0) {
+            showToast('Please add to your bet first!');
+            return;
+        }
+        
+        if (balance < currentBid) {
+            showToast('Insufficient balance!');
+            return;
+        }   
+
+        sendSocket({
+            action: 'place_bid',
+            amount: currentBid,
+            side: selectedSide,
+            exact_number: selectedExactNumber || null
+        });
+        
+        currentRoundBid = {
+            side: selectedSide,
+            exactNumber: selectedExactNumber,
+            amount: currentBid
+        };
+   
+         
+        balance -= currentBid;
+        currentBid = 0;
+        updateCurrentBidDisplay();
+        fetchBalance();
+        showToast(`Bet placed!`);
+    }
+    
+    function displayPlayerBet(bet) {
+        const containerId = bet.exact ? 
+            `dice-show-${bet.exact}` : 
+            `players-group-${bet.side.toLowerCase()}`;
+            
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        const chip = document.createElement('div');
+        chip.className = 'player-chip';
+        chip.innerHTML = `<div>${bet.username}<br>${bet.amount}</div>`;
+        container.appendChild(chip);
+    }
+ 
+    
+    function updateTotals(totals) { 
+        if (!totals) return; 
+
+        // Update DOWN total
+        const downTotal = totals.DOWN || 0;
+        const downDisplay = document.querySelector('#DOWN-side .total-display');
+        downDisplay.style.display = downTotal > 0 ? 'inline' : 'none';
+        document.getElementById('total-bet-amount-DOWN').textContent = downTotal;
+
+        // Update MIDDLE total
+        const middleTotal = totals.MIDDLE || 0;
+        const middleDisplay = document.querySelector('#MIDDLE-side .total-display');
+        middleDisplay.style.display = middleTotal > 0 ? 'inline' : 'none';
+        document.getElementById('total-bet-amount-MIDDLE').textContent = middleTotal;
+
+        // Update UP total
+        const upTotal = totals.UP || 0;
+        const upDisplay = document.querySelector('#UP-side .total-display');
+        upDisplay.style.display = upTotal > 0 ? 'inline' : 'none';
+        document.getElementById('total-bet-amount-UP').textContent = upTotal;
+        
+        const exactTotals = totals.EXACT || {};
+        for (let num = 2; num <= 12; num++) {
+            const element = document.getElementById(`exact-total-${num}`);
+            if (element) {
+                element.textContent = exactTotals[num] || 0;
+            }
+        }
+    }
+     
+    function changeAmountPage(direction) {
+        const wrapper = document.querySelector('.amount-groups-wrapper');
+        const groups = document.querySelectorAll('.amount-group');
+                
+        currentAmountGroup += direction;
+        
+        if (currentAmountGroup < 0) currentAmountGroup = groups.length - 1;
+        if (currentAmountGroup >= groups.length) currentAmountGroup = 0;
+        
+        const offset = -currentAmountGroup * 100;
+        wrapper.style.transform = `translateX(${offset}%)`;
+    }
+           
+    function updateCurrentBidDisplay() {
+        document.getElementById('current-bid').textContent = currentBid.toLocaleString();
+    }       
+     
+    function startRollingAnimation() {   
+      let interval = setInterval(() => {
+        const n1 = `dice_${getRandomDice()}.png`;
+        const n2 = `dice_${getRandomDice()}.png`;
+        dice1.src = `{% static '/diceRoll/img/' %}${n1}`;
+        dice2.src = `{% static '/diceRoll/img/' %}${n2}`;
+        dice1.style.top = `${55 - getRandomDice() * 6}%`;
+        dice2.style.top = `${60 - getRandomDice() * 6}%`;
+        dice1.style.left = `${40 + getRandomDice() * 2}%`;
+        dice2.style.left = `${70 + getRandomDice() * 2}%`;
+      }, 100);
+
+      setTimeout(() => {
+        clearInterval(interval);
+        const roll1 = getRandomDice();
+        const roll2 = getRandomDice();
+        const diceRoll1 = `dice_${roll1}.png`;
+        const diceRoll2 = `dice_${roll2}.png`;
+        dice1.src = `{% static '/diceRoll/img/' %}${diceRoll1}`;
+        dice2.src = `{% static '/diceRoll/img/' %}${diceRoll2}`;
+        dice1.style.top = "55%";
+        dice2.style.top = "60%";
+        dice1.style.left = "40%";
+        dice2.style.left = "70%";
+ 
+      }, 2000);
+    }
+
+    function getRandomDice() {
+      const n = Math.floor(Math.random() * 6) + 1;
+      return n;
+    }
+  
+         
+    function resetRound() { 
+        document.getElementById('DOWN-side').classList.remove('winner', 'selected');
+        document.getElementById('MIDDLE-side').classList.remove('winner', 'selected');
+        document.getElementById('UP-side').classList.remove('winner', 'selected');
+        
+                    
+        for (let i = 2; i <= 12; i++) {
+            const totalEl = document.getElementById(`exact-total-${i}`);
+            if (totalEl) totalEl.remove();
+        }
+         
+        playerBids = { down: [], middle: [], up: [], exact: {} };
+                    
+        selectedSide = null;
+        selectedExactNumber = null;
+        currentBid = 0;
+        updateCurrentBidDisplay(); 
+        
+        document.querySelectorAll('.side').forEach(side => {
+            side.classList.remove('winner');
+        });
+        document.getElementById('players-group-DOWN').innerHTML = '';
+        document.getElementById('players-group-MIDDLE').innerHTML = '';
+        document.getElementById('players-group-UP').innerHTML = '';
+         
+        document.getElementById('total-bet-amount-DOWN').textContent = '0';
+        document.getElementById('total-bet-amount-MIDDLE').textContent = '0';
+        document.getElementById('total-bet-amount-UP').textContent = '0'; 
+        
+        currentRoundBid = null; 
+    } 
+             
+    function selectSide(side) {
+        if (selectedExactNumber) {
+            document.getElementById(`dice-show-${selectedExactNumber}`).classList.remove('selected');
+            selectedExactNumber = null;
+        }
+                   
+        selectedSide = side.toUpperCase();
+         
+        document.getElementById('DOWN-side').classList.remove('selected');
+        document.getElementById('MIDDLE-side').classList.remove('selected');
+        document.getElementById('UP-side').classList.remove('selected');
+        
+        document.getElementById(`${selectedSide}-side`).classList.add('selected');
+        
+    }
+            
+    function selectExactNumber(number) {   
+        if (selectedSide) {
+            document.getElementById(`${selectedSide}-side`).classList.remove('selected');
+            selectedSide = null;
+        }
+
+        if (selectedExactNumber) {
+            document.getElementById(`dice-show-${selectedExactNumber}`).classList.remove('selected');
+        }
+        
+        selectedExactNumber = number;
+        document.getElementById(`dice-show-${number}`).classList.add('selected');
+    }
+            
+    function addToBet(amount) {
+        if (balance < currentBid + amount) {
+            showToast('Insufficient balance!');
+            return;
+        }
+
+        // currentBid += amount;
+        updateCurrentBidDisplay(); 
+        if (selectedSide) {
+            const chip = document.createElement('div');
+            chip.className = 'player-chip floating-chip';
+            chip.innerHTML = `<div>+${amount}</div>`;
+
+            const sideEl = document.getElementById(`${selectedSide}-side`);
+            const chipContainer = sideEl.querySelector('.chip-container');
+            chipContainer.appendChild(chip);
+
+            setTimeout(() => {
+                chip.remove();
+            }, 3000);
+        }
+    }
+         
+    function showToast(message) {
+                const toast = document.createElement('div');
+                toast.className = 'fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                toast.textContent = message;
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.remove();
+                }, 3000);
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => { 
+        connectWebSocket();
+        updateCurrentBidDisplay();  
+        fetchBalance();
+    }); 
+        
+        
+</script>
+     
+    {% include 'layout/HomePage/Footer_Home.html' %}
+    {% load static %}
+ 
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script> 
+</body>
+</html>
+
+ 

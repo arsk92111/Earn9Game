@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+     {% load static %}
+   {% include 'layout/account/header.html' %}
+    <title> Earn9Game | SignUp </title>
+</head>
+ 
+<body>
+  <div class="login-form">
+    <div class="text">REGISTER</div>
+
+    <form  id="registerForm" onsubmit="event.preventDefault(); submitRegisterForm();" method="POST" enctype="multipart/form-data">
+      {% csrf_token %} 
+      <div class="field email-group" >
+        <div class="fas fa-user"></div>
+        <input type="text" name="db_fullname" id="db_fullname" value="" placeholder="John Doe" title="Enter Full Name">
+      </div>
+      
+      <!-- Phone Number Field Group -->
+      <div class="field phone-group">
+        <div class="fas fa-mobile-alt"></div>
+        <select name="country_code" id="country_code" value="" class="select" required style="width: 5em; background: linear-gradient(#333,#222); color: #868686;">
+          <option value="+92" selected>🇵🇰 +92</option>
+          <option value="+91">🇮🇳 +91</option>
+          <option value="+1">🇺🇸 +1</option>
+          <option value="+86">🇨🇳 +86</option>
+          <option value="+880">🇧🇩 +880</option>
+          <option value="+81">🇯🇵 +81</option>
+          <option value="+971">🇦🇪 +971</option>
+          <option value="+44">🇬🇧 +44</option>
+        </select>
+        <input type="tel" name="db_phone_number" value="" id="db_phone_number" placeholder="03121234567" pattern="^[0-9]{10,15}$" title="Numbers only (10-15 digits)">
+      </div> 
+      
+      <!-- Email  -->
+
+      <!-- <div class="field email-group" style="display: none;">
+        <div class="fas fa-envelope"></div>
+        <input type="email" name="email" id="email" value="" placeholder="you@example.com" title="Enter valid email">
+      </div> -->
+
+      <div class="field">
+        <div class="fas fa-lock"></div>
+        <input type="password" name="password" id="password"  value="" placeholder="Password" minlength="8" required>
+        <i class="fas fa-eye toggle-password" 
+                     role="button" 
+                     aria-label="Show password"
+                     tabindex="0"
+                     ></i>
+           
+      </div>
+    
+      <!-- Dynamic switch link -->
+      <!-- <div class="link switch-link">
+        Create by <a href="#" id="toggle-register-type">Email</a>
+      </div> -->
+      <button type="submit">Register</button>
+
+      <div class="link">
+        Already a member?
+        <a href="{% url 'login_page' %}">Login now</a>
+      </div>
+ 
+    </form>
+  </div>
+  
+  <script>
+//     const toggleLink = document.getElementById('toggle-register-type');
+//     const phoneGroup = document.querySelector('.phone-group');
+//     const emailGroup = document.querySelector('.email-group');
+
+//     toggleLink.addEventListener('click', function (e) {
+//   e.preventDefault();
+//   const isPhoneVisible = phoneGroup.style.display !== 'none';
+
+//   if (isPhoneVisible) {
+//     // Switch to Email
+//     document.getElementById('db_phone_number').removeAttribute('required');
+//     document.getElementById('db_phone_number').removeAttribute('pattern');
+//     phoneGroup.style.display = 'none';
+//     document.getElementById('email').setAttribute('required', '');
+//     emailGroup.style.display = 'flex';
+//     toggleLink.textContent = 'Phone Number';
+//   } else {
+//     // Switch to Phone
+//     document.getElementById('email').removeAttribute('required');
+//     emailGroup.style.display = 'none';
+//     document.getElementById('db_phone_number').setAttribute('required', '');
+//     document.getElementById('db_phone_number').setAttribute('pattern', '^[0-9]{10,15}$');
+//     phoneGroup.style.display = 'flex';
+//     toggleLink.textContent = 'Email';
+//   }
+// });
+
+  </script>
+
+  {% load static %}
+  {% include 'layout/account/footer.html' %}
+
+  
+</body>
+
+</html>
+
+
+ 
